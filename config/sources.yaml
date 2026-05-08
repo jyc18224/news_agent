@@ -1,0 +1,30 @@
+#创建 config/sources.yaml 放 3 个 RSS 源
+sources:
+  - name: "OpenAI Blog"
+    url: "https://openai.com/blog/rss.xml"
+    type: "rss"
+
+  - name: "Hacker News"
+    url: "https://news.ycombinator.com/rss"
+    type: "rss"
+
+  - name: "TechCrunch AI"
+    url: "https://techcrunch.com/category/artificial-intelligence/feed/"
+    type: "rss"
+
+
+# 6.2 新增：邮箱配置
+# ======================
+email:
+  enabled: true             # 开关：true=发邮件，false=不发
+  sender: "zyc19313197476@163.com"     # 发件邮箱
+  auth_code: "QJdRj7AUxrnk2Gcb"   # 授权码
+  smtp_server: "smtp.163.com"
+  smtp_port: 465
+  to: "zyc19313197476@163.com"         # 收件邮箱
+
+
+config:
+  max_articles_per_source: 5
+  timeout_seconds: 10
+  user_agent: "NewsDigestAgent/1.0"

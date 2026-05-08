@@ -1,0 +1,17 @@
+
+.env
+.env.*
+uv.lock
+
+cache.json
+logs/
+report/
+
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+.idea/
+.DS_Store
+Thumbs.db
