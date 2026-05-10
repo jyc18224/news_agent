@@ -13,15 +13,13 @@ sources:
     type: "rss"
 
 
-# 6.2 新增：邮箱配置
-# ======================
 email:
-  enabled: true             # 开关：true=发邮件，false=不发
-  sender: "zyc19313197476@163.com"     # 发件邮箱
-  auth_code: "QJdRj7AUxrnk2Gcb"   # 授权码
+  enabled: true
+  sender: "${EMAIL_SENDER}"
+  auth_code: "${EMAIL_AUTH_CODE}"
   smtp_server: "smtp.163.com"
   smtp_port: 465
-  to: "zyc19313197476@163.com"         # 收件邮箱
+  to: "${EMAIL_TO}"
 
 
 config:

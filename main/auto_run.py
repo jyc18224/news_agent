@@ -1,7 +1,7 @@
 import asyncio
 import time
 import datetime
-# 关键：先检查导入的是不是正确的 schedule
+
 try:
     import schedule
 except ImportError:

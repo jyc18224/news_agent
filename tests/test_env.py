@@ -10,7 +10,6 @@ def test_python_version():
     assert python_version.startswith("3.11"), "Python 版本必须是 3.11"
 
 def test_required_packages_installed():
-    """✅ 最稳的包检测方法，不会误报！"""
     required_packages = [
         "feedparser",
         "aiohttp",

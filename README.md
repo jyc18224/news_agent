@@ -31,17 +31,25 @@ graph TD
 - **邮箱**: 163 邮箱授权码
 
 ##  安装步骤
-1**打开 PyCharm 底部终端** (Terminal)。
-2**创建并激活虚拟环境** (推荐)：
+1.**打开 PyCharm 底部终端** (Terminal)。
+
+2.**创建并激活虚拟环境** (推荐)：
    ```bash
    python -m venv venv
    # Windows:
    venv\Scripts\activate
    # Mac/Linux:
    source venv/bin/activate
-'
+```   
+##  安装依赖（使用uv）
+```bash
+#安装 uv (如果未安装)
+pip install uv
+# 同步项目依赖
+uv sync
+``` 
 ## ️ 环境配置 (.env)
-请在项目根目录创建 `.env` 文件，并填入以下内容：
+请在项目根目录创建 `.env` 文件,并填入以下内容;
 
 ```text
 # 通义千问 API 配置
@@ -56,6 +64,14 @@ SMTP_PASSWORD=你的邮箱授权码
 ## 使用示例
 1. 手动运行完整流程：在终端输入 python main/run_graph.py
 2. 定时自动运行：在终端输入 python main/auto_run.py
+
+## 测试运行
+1. 运行单元测试
+uv run pytest tests/
+
+   2. 检查代码格式
+   uv run black --check . uv run ruff check .
+
 ##  项目功能
 - ✅ **自动抓取**：从 RSS 源自动获取每天最新新闻
 - 🧹 **数据清洗**：自动去重、清洗无效文本
@@ -71,21 +87,6 @@ SMTP_PASSWORD=你的邮箱授权码
 - **全自动无人值守**：从 RSS 新闻源抓取、处理到最终日报邮件推送，全流程无需人工干预，支持每日定时自动执行。
 - **结构化日报输出**：自动生成分类清晰、格式美观的 Markdown 日报，按主题汇总新闻，便于快速阅读与归档。
 
-## ▶️ 运行方式
-
-### 1. 手动运行
-在 PyCharm 终端或命令行中直接运行主程序：
-
-python main/run_graph.py.py
-
-### 2. 定时任务 (推荐)
-
-项目内置了定时任务配置，程序启动后会自动按计划运行。
-
-- **默认设置**：每天早上 08:00 自动抓取并发送日报。
-- **修改频率**：可在 `main.py` 中调整 `schedule.every().day.at("08:00")` 的时间设置。
-
----
 
 ##  未来改进
 
