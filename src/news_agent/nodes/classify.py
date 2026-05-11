@@ -1,14 +1,11 @@
-import json
 import os
-import re
+from datetime import datetime
 from typing import List, Dict
-from collections import defaultdict
 
 from openai import OpenAI
-from news_agent.utils.logger import logger
-from datetime import datetime
 
-from utils.cache import (
+from news_agent.utils.logger import logger
+from ..utils.cache import (
     get_category_cache,
     set_category_cache
 )

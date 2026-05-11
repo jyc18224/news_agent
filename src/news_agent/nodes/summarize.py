@@ -4,7 +4,7 @@ from openai import OpenAI
 from news_agent.utils.logger import logger
 import os
 from datetime import datetime
-from utils.cache import (
+from ..tils.cache import (
     get_summary_cache,
     get_category_summary_cache,
     set_category_summary_cache,
