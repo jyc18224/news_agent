@@ -4,7 +4,7 @@ from typing import List, Dict
 
 from openai import OpenAI
 
-from news_agent.utils.logger import logger
+from ..utils.logger import logger
 from ..utils.cache import (
     get_category_cache,
     set_category_cache

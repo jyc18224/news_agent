@@ -1,15 +1,15 @@
-from typing import List, Dict
-from collections import defaultdict
-from openai import OpenAI
-from news_agent.utils.logger import logger
 import os
 from datetime import datetime
-from ..tils.cache import (
+from typing import List, Dict
+
+from openai import OpenAI
+
+from ..utils.cache import (
     get_summary_cache,
     get_category_summary_cache,
-    set_category_summary_cache,
     set_summary_cache
 )
+from ..utils.logger import logger
 
 client = OpenAI(
     api_key=os.getenv("DASHSCOPE_API_KEY"),

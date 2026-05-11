@@ -1,5 +1,5 @@
 # nodes/report.py  5.30 正式版（Markdown表格 + 存入state）
-from news_agent.utils.logger import logger
+from ..utils.logger import logger
 from datetime import datetime
 from pathlib import Path
 from collections import defaultdict
@@ -40,7 +40,7 @@ def generate_markdown_report(state):
             md += f"| {title} | {summary} |\n"
         md += "\n"
     # 5.31 增加编辑推荐板块
-    from nodes.report import pick_editor_recommend
+    from .report import pick_editor_recommend
     recommend_text = pick_editor_recommend(articles)
     md += "\n---\n\n# 🎯 编辑推荐\n\n"
     md += recommend_text + "\n"
