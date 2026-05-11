@@ -1,0 +1,32 @@
+name: Daily News Agent
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-news-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "uv"
+
+      - name: 安装uv
+        run: pip install uv
+
+      - name: 安装依赖
+        run: uv pip install -e .
+
+      - name: 运行新闻Agent
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_AUTH_CODE: ${{ secrets.EMAIL_AUTH_CODE }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+        run: uv run python main/run_graph.py
