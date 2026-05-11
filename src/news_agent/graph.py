@@ -1,18 +1,16 @@
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver  # 6.3 持久化
-from state import AgentState
-from nodes.fetch_async import fetch_sources_async_node
-from nodes.dedup import dedup_node
-from utils.cleaner import clean_articles_node
-# 按拆分后的文件导入
-from nodes.classify import classify_node
-from nodes.summarize import (
-    extra_check_node,
-    summarize_single_batch_node,
-    summarize_category_node
-)
-from nodes.report import report_node
-from nodes.send import send_email_node
+from langgraph.checkpoint.memory import MemorySaver
+
+from news_agent.state import AgentState
+from news_agent.nodes.fetch_async import fetch_sources_async_node
+from news_agent.nodes.dedup import dedup_node
+from news_agent.utils.cleaner import clean_articles_node
+from news_agent.nodes.classify import classify_node
+from news_agent.nodes.summarize import extra_check_node
+from news_agent.nodes.summarize import summarize_single_batch_node
+from news_agent.nodes.summarize import summarize_category_node
+from news_agent.nodes.report import report_node
+from news_agent.nodes.send import send_email_node
 # 6.3 持久化（必须加）
 # ======================
 memory = MemorySaver()
