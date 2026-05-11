@@ -7,26 +7,25 @@ on:
 jobs:
   run-news-agent:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src
     steps:
-      - uses: actions/checkout@v4
+      - name: 拉取代码
+        uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: 设置Python环境
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
-          cd ..
+          python -m pip install --upgrade pip
           pip install -e .
 
-      - name: Run
+      - name: 运行新闻Agent
         env:
+          PYTHONPATH: ${{ github.workspace }}/src:${{ github.workspace }}
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_AUTH_CODE: ${{ secrets.EMAIL_AUTH_CODE }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
-        run: python ../main/run_graph.py
+        run: python main/run_graph.py
