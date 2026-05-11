@@ -1,5 +1,5 @@
 # nodes/report.py  5.30 正式版（Markdown表格 + 存入state）
-from utils.logger import logger
+from news_agent.utils.logger import logger
 from datetime import datetime
 from pathlib import Path
 from collections import defaultdict

@@ -7,7 +7,7 @@ import feedparser
 # 类型注解：用来标记字典、列表类型，方便代码可读性和IDE提示
 from typing import Dict, List
 # 导入自定义日志工具，用来打印格式化的日志（INFO/ERROR）
-from utils.logger import logger
+from news_agent.utils.logger import logger
 # 👇 从根目录导入 state
 from state import AgentState
 from datetime import datetime

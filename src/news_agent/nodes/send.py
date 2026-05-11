@@ -2,7 +2,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
-from utils.logger import logger
+from news_agent.utils.logger import logger
 from datetime import datetime
 
 def send_email(report_md: str, email_config: dict):

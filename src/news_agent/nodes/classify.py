@@ -5,7 +5,7 @@ from typing import List, Dict
 from collections import defaultdict
 
 from openai import OpenAI
-from utils.logger import logger
+from news_agent.utils.logger import logger
 from datetime import datetime
 
 from utils.cache import (

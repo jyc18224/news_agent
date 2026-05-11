@@ -1,5 +1,5 @@
 import re
-from utils.logger import logger
+from news_agent.utils.logger import logger
 from datetime import datetime
 from state import AgentState
 
