@@ -9,7 +9,7 @@ from typing import Dict, List
 # 导入自定义日志工具，用来打印格式化的日志（INFO/ERROR）
 from news_agent.utils.logger import logger
 # 👇 从根目录导入 state
-from state import AgentState
+from ..state import AgentState
 from datetime import datetime
 
 

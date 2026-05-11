@@ -1,5 +1,5 @@
 from difflib import SequenceMatcher
-from state import AgentState
+from ..state import AgentState
 from news_agent.utils.logger import logger
 from datetime import datetime
 

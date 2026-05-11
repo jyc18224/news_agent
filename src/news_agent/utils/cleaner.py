@@ -1,7 +1,7 @@
 import re
 from news_agent.utils.logger import logger
 from datetime import datetime
-from state import AgentState
+from ..state import AgentState
 
 
 def clean_text(text):
