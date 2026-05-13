@@ -29,8 +29,8 @@ if __name__ == "__main__":
     print(f"✅ 已设置测试任务：{next_minute} 运行一次")
 
     # 正式任务：每天早上8点运行
-    schedule.every().day.at("08:00").do(daily_task)
-    print("✅ 已设置每日任务：每天 08:00 自动运行")
+    schedule.every().day.at("09:00").do(daily_task)
+    print("✅ 已设置每日任务：每天 09:00 自动运行")
 
     print("💡 保持窗口开启，程序将在后台等待执行")
     while True:
