@@ -1,7 +1,7 @@
 name: Daily News Agent
 on:
   schedule:
-    - cron: '20 2 * * *'
+    - cron: '40 2 * * *'
   workflow_dispatch:
 
 jobs:
@@ -28,4 +28,4 @@ jobs:
           EMAIL_AUTH_CODE: ${{ secrets.EMAIL_AUTH_CODE }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
-        run: python src/news_agent/main/run_graph.py
+        run: python main/run_graph.py
