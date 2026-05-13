@@ -61,6 +61,5 @@ workflow.add_edge("send_email", END)
 # 6.3 开启持久化 + 中断
 # ======================
 graph = workflow.compile(
-    checkpointer=memory,
-    interrupt_before=["send_email"]  # 发送前暂停
+    checkpointer=memory
 )

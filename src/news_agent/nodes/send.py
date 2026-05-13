@@ -6,6 +6,7 @@ from ..utils.logger import logger
 from datetime import datetime
 
 def send_email(report_md: str, email_config: dict):
+
     if not email_config.get("enabled", False):
         logger.info("📩 邮件功能已关闭，跳过发送")
         return True
@@ -37,7 +38,6 @@ def send_email_node(state):
     logger.info("📧 准备发送邮件...")
     # 【新增耗时统计】：记录开始时间
     start = datetime.now()
-
     # ===================== 【6.5新增】安全获取邮箱配置 =====================
     email_config = state.get("config", {}).get("email", {})
     report_content = state.get("report", "")

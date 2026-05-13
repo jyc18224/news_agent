@@ -12,7 +12,6 @@ sources:
     url: "https://techcrunch.com/category/artificial-intelligence/feed/"
     type: "rss"
 
-
 email:
   enabled: true
   sender: "${EMAIL_SENDER}"
