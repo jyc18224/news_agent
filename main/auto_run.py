@@ -26,15 +26,27 @@ def get_beijing_time():
     """获取当前北京时间"""
     return datetime.datetime.now(pytz.timezone('Asia/Shanghai'))
 
+def clear_all_jobs():
+    """安全清除所有定时任务"""
+    try:
+        schedule.cancel_pending()
+        print("✅ 已清除所有定时任务")
+    except Exception as e:
+        print(f"⚠️ 清除任务时出错：{e}")
 
 if __name__ == "__main__":
     # 清空所有任务
-    schedule.clear()
+    clear_all_jobs()
 
     # ✅ 关键修复1：使用北京时间
-    TARGET_TIME = "19:00"  # 北京时间
-    schedule.every().day.at(TARGET_TIME).do(daily_task)
-    print(f"✅ 已设置每日任务：每天 {TARGET_TIME} (北京时间) 自动运行")
+    TARGET_TIME = "19:22"  # 北京时间
+    try:
+        schedule.every().day.at(TARGET_TIME).do(daily_task)
+        print(f"✅ 已设置每日任务：每天 {TARGET_TIME} (北京时间) 自动运行")
+    except Exception as e:
+        print(f"❌ 设置定时任务失败：{e}")
+        print("💡 提示：确保时间格式为 HH:MM（英文冒号）")
+        exit(1)
 
     # ✅ 关键修复2：添加立即执行检查（避免无限等待）
     start_time = get_beijing_time()

@@ -1,7 +1,7 @@
 name: Daily News Agent
 on:
   schedule:
-    - cron: '00 11 * * *'
+    - cron: '22 11 * * *'
   workflow_dispatch:
 
 jobs:
