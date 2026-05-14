@@ -32,7 +32,7 @@ if __name__ == "__main__":
     schedule.clear()
 
     # ✅ 关键修复1：使用北京时间
-    TARGET_TIME = "18:10"  # 北京时间
+    TARGET_TIME = "19:00"  # 北京时间
     schedule.every().day.at(TARGET_TIME).do(daily_task)
     print(f"✅ 已设置每日任务：每天 {TARGET_TIME} (北京时间) 自动运行")
 
