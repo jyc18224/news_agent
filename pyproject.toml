@@ -9,18 +9,16 @@ dependencies = [
     "sentence-transformers==3.0.1",
     "chromadb==0.5.5",  # 👈 必须加！和 numpy<2.0.0 兼容
     "openai==2.30.0",   # 👈 必须加！你的项目需要
-
     # Data fetching & parsing
     "feedparser==6.0.12",
     "aiohttp==3.13.5",
-
     # Configuration & utilities
     "python-frontmatter==1.1.0",
     "pyyaml==6.0.3",
     "numpy<2.0.0",  # 👈 永久锁死 1.x！避免与 chromadb 0.5.5 冲突
-
-    # Scheduler (optional but recommended)
+    "Scheduler==1.2.1",
     "django-scheduler>=0.12.0",
+    "pytz>=2026.2",
 ]
 
 [build-system]
