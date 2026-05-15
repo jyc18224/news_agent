@@ -1,5 +1,4 @@
 import asyncio
-import time
 from datetime import datetime
 import pytz
 from main.run_graph import main
