@@ -3,7 +3,8 @@ name: Daily News Agent
 on:
   schedule:
     # ✅ 正确格式：分钟 小时 * * *（UTC 时间）
-    - cron: '40 1 * * *'
+    - cron: '50 2 * * *'
+  workflow_dispatch:
 
 jobs:
   run-news-agent:
