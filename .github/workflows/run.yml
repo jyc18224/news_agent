@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          pip install --upgrade pip
           pip install -e .  # 从项目根目录安装
           pip list  # 调试：查看已安装的包
 
