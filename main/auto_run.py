@@ -29,7 +29,7 @@ def get_beijing_time():
 def clear_all_jobs():
     """安全清除所有定时任务"""
     try:
-        schedule.cancel_pending()
+        schedule.clear()
         print("✅ 已清除所有定时任务")
     except Exception as e:
         print(f"⚠️ 清除任务时出错：{e}")
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     clear_all_jobs()
 
     # ✅ 关键修复1：使用北京时间
-    TARGET_TIME = "19:22"  # 北京时间
+    TARGET_TIME = "8:33"  # 北京时间
     try:
         schedule.every().day.at(TARGET_TIME).do(daily_task)
         print(f"✅ 已设置每日任务：每天 {TARGET_TIME} (北京时间) 自动运行")
