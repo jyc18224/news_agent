@@ -24,7 +24,7 @@ def daily_task():
 
 if __name__ == "__main__":
     # ✅ 关键设置：确保时间格式正确（24小时制，两位数字）
-    TARGET_TIME = "09:22"  # 北京时间
+    TARGET_TIME = "09:00"  # 北京时间
 
     try:
         # 设置每日定时任务

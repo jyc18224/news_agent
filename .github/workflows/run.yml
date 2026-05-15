@@ -3,7 +3,7 @@ name: Daily News Agent
 on:
   schedule:
     # ✅ 正确格式：分钟 小时 * * *（UTC 时间）
-    - cron: '22 1 * * *'
+    - cron: '40 1 * * *'
 
 jobs:
   run-news-agent:
@@ -21,6 +21,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .  # 从项目根目录安装
+          pip list  # 调试：查看已安装的包
 
       - name: Run News Agent
         env:
