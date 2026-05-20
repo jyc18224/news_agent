@@ -1,89 +1,74 @@
 import os
 from datetime import datetime
 from typing import List, Dict
-
+from collections import defaultdict
 from openai import OpenAI
 
-from ..utils.cache import (
-    get_summary_cache,
-    get_category_summary_cache,
-    set_summary_cache
-)
+from ..utils.cache import get_summary_cache, get_category_summary_cache, set_summary_cache
 from ..utils.logger import logger
 
+# LLM 客户端配置
 client = OpenAI(
     api_key=os.getenv("DASHSCOPE_API_KEY"),
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
 )
 
-# ----------------------
-# 5.28 + 5.29 单篇文章摘要（健壮版）
-# ----------------------
 def generate_summary(article: Dict) -> Dict:
+    """
+    为单篇文章生成简洁摘要。
+    利用缓存机制避免重复的 LLM 调用。
+    """
     title = article.get("title", "").strip()
     content = article.get("content", "").strip()
 
-    # ===================== 【缓存：第一步】 =====================
-    # 查缓存：如果标题已经处理过，直接返回，不调LLM
     cached = get_summary_cache(title)
-    if cached is not None:
+    if cached:
         article["summary"] = cached
         return article
-    # ==========================================================
 
-    # 文章太短，直接用标题
-    if not content or len(content) < 20:
-        article["summary"] = title
-        # 存进缓存
-        set_summary_cache(title, title)
-        return article
-
-    prompt = f"""请为新闻生成简洁摘要（20-50字）。
+    # 如果正文太短，则直接使用标题作为摘要
+    if not content or len(content) < 50:
+        summary = title
+    else:
+        prompt = f"""请为以下新闻生成简洁摘要（20-50字）。
 标题：{title}
 正文：{content}
 摘要："""
+        try:
+            resp = client.chat.completions.create(
+                model="qwen-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=150
+            )
+            summary = resp.choices[0].message.content.strip()
+        except Exception as e:
+            logger.error(f"摘要生成失败 '{title}': {e}")
+            summary = title
 
-    try:
-        resp = client.chat.completions.create(
-            model="qwen-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=100
-        )
-        summary = resp.choices[0].message.content.strip()
-        article["summary"] = summary
-
-        # ===================== 【缓存：第二步】 =====================
-        # 生成成功 → 存进缓存
-        set_summary_cache(title, summary)
-    except Exception as e:
-        logger.error(f"摘要失败：{e}")
-        # ===================== 【6.5新增】异常兜底 =====================
-        article["summary"] = title
-        set_summary_cache(title, title)
+    article["summary"] = summary
+    set_summary_cache(title, summary)
     return article
 
-# ----------------------
-# 5.28 批量单篇摘要节点
-# ----------------------
-def summarize_single_batch_node(state):
-    # 【新增日志】：开始单篇摘要的提示
-    logger.info("✍️  开始生成单篇摘要...")
-    # 【新增耗时统计】：记录开始时间
-    start = datetime.now()
+def summarize_single_batch_node(state: dict) -> dict:
+    """
+    LangGraph 节点：批量处理单篇文章摘要。
+    """
+    logger.info("开始生成单篇摘要...")
+    start_time = datetime.now()
+    
     articles = state.get("classified_articles", [])
     summarized = [generate_summary(art) for art in articles]
 
-    # 【新增耗时统计】：计算并打印耗时
-    cost = (datetime.now() - start).total_seconds()
-    logger.info(f"✅ 单篇摘要完成：{len(summarized)} 篇 | 耗时 {cost:.2f}s")
+    cost = (datetime.now() - start_time).total_seconds()
+    logger.info(f"单篇摘要完成：共处理 {len(summarized)} 篇文章 | 耗时: {cost:.2f}s")
+    
     return {"classified_articles": summarized}
 
-# ----------------------
-# 5.27 类别汇总摘要
-# ----------------------
 def summarize_by_category(articles: List[Dict]) -> Dict:
-    from collections import defaultdict
+    """
+    为每个新闻类别生成整合后的摘要。
+    """
     grouped = defaultdict(list)
     for art in articles:
         cat = art.get("category", "其他")
@@ -91,22 +76,17 @@ def summarize_by_category(articles: List[Dict]) -> Dict:
 
     category_summary = {}
     for cat, arts in grouped.items():
-        # ========== 缓存：同类目只汇总一次，不重复调用 LLM ==========
         cached_summary = get_category_summary_cache(cat)
-        if cached_summary is not None:
-            category_summary[cat] = {
-                "count": len(arts),
-                "summary": cached_summary
-            }
+        if cached_summary:
+            category_summary[cat] = {"count": len(arts), "summary": cached_summary}
             continue
-        texts = [f"【新闻{i + 1}】{a.get('title', '无标题')}\n{a.get('content', '')}" for i, a in enumerate(arts)]
-        all_text = "\n".join(texts)
 
-        prompt = f"""你是专业新闻编辑，请对【{cat}】类新闻生成一段80-150字汇总摘要。
-新闻内容：
-{all_text}
+        titles_text = "\n".join([f"- {a.get('title', '无标题')}" for a in arts])
+        prompt = f"""你是专业的新闻编辑。请为以下【{cat}】类的新闻生成一段 80-150 字的整合摘要。
+新闻标题列表：
+{titles_text}
 
-汇总摘要："""
+整合摘要："""
 
         try:
             resp = client.chat.completions.create(
@@ -117,35 +97,31 @@ def summarize_by_category(articles: List[Dict]) -> Dict:
             )
             summary = resp.choices[0].message.content.strip()
             category_summary[cat] = {"count": len(arts), "summary": summary}
-        except:
-            category_summary[cat] = {"count": len(arts), "summary": "汇总失败"}
+        except Exception as e:
+            logger.error(f"分类汇总摘要失败 '{cat}': {e}")
+            category_summary[cat] = {"count": len(arts), "summary": "生成汇总摘要失败。"}
+            
     return category_summary
 
-# ----------------------
-# 5.27 汇总摘要节点
-# ----------------------
-def summarize_category_node(state):
-    # 【新增日志】：开始分类汇总的提示
-    logger.info("📝 开始生成分类汇总...")
-    # 【新增耗时统计】：记录开始时间
-    start = datetime.now()
+def summarize_category_node(state: dict) -> dict:
+    """
+    LangGraph 节点：生成类别级别的整合摘要。
+    """
+    logger.info("开始生成类别汇总摘要...")
+    start_time = datetime.now()
 
     articles = state.get("classified_articles", [])
     summary_result = summarize_by_category(articles)
 
-    # 【新增耗时统计】：计算并打印耗时
-    cost = (datetime.now() - start).total_seconds()
-    logger.info(f"✅ 分类汇总完成，共 {len(summary_result)} 类 | 耗时 {cost:.2f}s")
-    return {
-        "classified_articles": articles,
-        "category_summary": summary_result
-    }
+    cost = (datetime.now() - start_time).total_seconds()
+    logger.info(f"类别汇总完成：共处理 {len(summary_result)} 个类别 | 耗时: {cost:.2f}s")
+    
+    return {"category_summary": summary_result}
 
-# ----------------------
-# 5.28 额外检查节点
-# ----------------------
-def extra_check_node(state):
+def extra_check_node(state: dict) -> dict:
+    """
+    可选的校验节点，用于处理大量文章。
+    """
     count = len(state.get("classified_articles", []))
-    logger.info(f"⚠️ 进入额外检查：文章数量 {count}（>20）")
-    logger.info("✅ 额外检查完成")
+    logger.info(f"触发额外校验节点：正在处理 {count} 篇文章。")
     return state

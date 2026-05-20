@@ -1,11 +1,5 @@
-# news_agent/nodes/fetch.py
 import feedparser
 import requests
-# 让 Python 能上网、能下载网页、能调用接口 HTTP 请求库
-#如果你直接用 requests 拿到 XML，你还要自己处理格式、提取标题、时间、链接……feedparser 帮你一键解析成字典，超级方便
-
-
-# 同步抓取单篇RSS
 def fetch_from_rss_sync(url):
     try:
         response = requests.get(url, timeout=10)
@@ -26,7 +20,6 @@ def fetch_from_rss_sync(url):
         print(f"抓取失败 {url}：{str(e)}")
         return []
 
-# 同步抓取节点（5.17版本）
 def fetch_sources_node(state):
     sources = state["config"]["sources"]
     all_articles = []

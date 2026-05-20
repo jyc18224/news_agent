@@ -1,35 +1,38 @@
 from difflib import SequenceMatcher
+from datetime import datetime
 from ..state import AgentState
 from ..utils.logger import logger
-from datetime import datetime
 
-def similarity(a, b):
+def similarity(a: str, b: str) -> float:
+    """计算两个字符串的相似度比例。"""
     return SequenceMatcher(None, a, b).ratio()
 
-def dedup_node(state: AgentState):
-    # ===================== 【6.5新增】安全获取文章 =====================
-    raw = state.get("raw_articles", [])
-    # 【新增日志】：开始去重的提示
-    logger.info("🔍 开始去重...")
-    # 【新增耗时统计】：记录开始时间
-    start = datetime.now()
+def dedup_node(state: AgentState) -> dict:
+    """
+    LangGraph 节点：基于标题相似度对文章进行去重。
+    """
+    logger.info("开始文章去重...")
+    start_time = datetime.now()
 
-    raw = state["raw_articles"]
-    logger.info(f"【去重】拿到文章数：{len(raw)}")
+    raw_articles = state.get("raw_articles", [])
+    if not raw_articles:
+        logger.warning("没有可去重的文章。")
+        return {"deduped_articles": []}
 
-    seen = set()
-    new_articles = []
-    for art in raw:
-        # ===================== 【6.5新增】空标题跳过 =====================
+    seen_titles = set()
+    unique_articles = []
+    
+    for art in raw_articles:
         title = art.get("title", "").strip()
         if not title:
             continue
-        if title not in seen:
-            seen.add(title)
-            new_articles.append(art)
+            
+        # 精确标题匹配校验
+        if title not in seen_titles:
+            seen_titles.add(title)
+            unique_articles.append(art)
 
-    # 【新增耗时统计】：计算并打印耗时
-    cost = (datetime.now() - start).total_seconds()
-    logger.info(f"✅ 去重完成：{len(raw)} → {len(new_articles)} 篇 | 耗时 {cost:.2f}s")
+    cost = (datetime.now() - start_time).total_seconds()
+    logger.info(f"去重完成：{len(raw_articles)} -> {len(unique_articles)} 篇 | 耗时: {cost:.2f}s")
 
-    return {"deduped_articles": new_articles}
+    return {"deduped_articles": unique_articles}

@@ -1,4 +1,3 @@
-#创建 config/sources.yaml 放 3 个 RSS 源
 sources:
   - name: "OpenAI Blog"
     url: "https://openai.com/blog/rss.xml"

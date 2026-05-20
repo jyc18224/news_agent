@@ -1,15 +1,16 @@
-# 这是整个 Agent 的“数据车厢”
-# 所有节点都从这里拿数据、放数据
-
 from typing import TypedDict, List, Dict
-from langgraph.graph import END
-
 
 class AgentState(TypedDict):
-    config: dict
-    raw_articles: List[Dict]
-    deduped_articles: List[Dict]  # 去重后【新增！】
-    cleaned_articles: List[Dict]
-    classified_articles: List[Dict]
-    category_summary: Dict[str, Dict]
-    report: str  # 存5.30要的报告文本
+    """
+    表示新闻 AI Agent 工作流的状态。
+    该架构定义了 LangGraph 中节点之间传递的数据。
+    """
+    config: dict                     # 基础配置信息
+    raw_articles: List[Dict]         # 原始抓取的文章列表
+    deduped_articles: List[Dict]     # 去重后的文章列表
+    cleaned_articles: List[Dict]     # 清洗后的文章列表
+    classified_articles: List[Dict]  # 分类及摘要后的文章列表
+    category_summary: Dict[str, Dict] # 各类别汇总摘要
+    report: str                      # 最终生成的报告文本
+    email_sent: bool                 # 邮件是否发送成功
+    email_error: str | None          # 邮件发送失败时的错误信息
