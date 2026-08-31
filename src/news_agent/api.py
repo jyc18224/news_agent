@@ -62,7 +62,7 @@ async def health() -> dict:
 async def demo_report() -> dict:
     if DEMO_REPORT.exists():
         return {"report": DEMO_REPORT.read_text(encoding="utf-8")}
-    return {"report": "演示报告尚未生成，请先运行 python main/demo_product.py"}
+    return {"report": "示例报告暂时不可用。"}
 
 
 @app.post("/api/agent/run")

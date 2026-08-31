@@ -4,9 +4,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from main.demo_product import DEMO_ARTICLES, render_demo_report  # noqa: E402
-from news_agent.nodes.dedup import dedup_node  # noqa: E402
-from news_agent.utils.cleaner import clean_text  # noqa: E402
+from main.demo_product import DEMO_ARTICLES, render_demo_report
+from news_agent.nodes.dedup import dedup_node
+from news_agent.utils.cleaner import clean_text
 
 
 def test_clean_text_removes_html_and_whitespace():
@@ -37,7 +37,7 @@ def test_demo_report_contains_product_output():
     assert "# AI 新闻早报" in report
     assert "今日抓取总量" in report
     assert "编辑推荐" in report
-    assert "演示模式" in report
+    assert "报告说明" in report
 
 
 def test_demo_articles_have_required_fields():

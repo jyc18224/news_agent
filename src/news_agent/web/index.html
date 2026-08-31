@@ -3,41 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NewsAgent 控制台</title>
+  <title>NewsAgent 产品控制台</title>
   <style>
     :root {
-      --bg: #f4f7f9;
-      --panel: #ffffff;
-      --ink: #17212b;
-      --muted: #5f6c7a;
-      --line: #d8e0e6;
-      --accent: #176b87;
-      --accent-2: #d97706;
-      --ok: #178a5a;
+      --bg: #f2f6f9;
+      --surface: #ffffff;
+      --text: #17212b;
+      --text-2: #5c6b7a;
+      --line: #dbe4eb;
+      --brand: #0f6e8c;
+      --brand-dark: #0b536b;
+      --success: #178a5a;
       --danger: #c2410c;
+      --warning: #b45309;
+      --shadow: 0 8px 24px rgba(23, 33, 43, 0.08);
     }
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+    html,
     body {
       margin: 0;
+      min-height: 100%;
+    }
+    body {
       background: var(--bg);
-      color: var(--ink);
-      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      color: var(--text);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
     }
     header {
-      background: var(--ink);
-      color: #fff;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav {
+      max-width: 1180px;
+      margin: 0 auto;
       padding: 18px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
     }
-    header h1 { margin: 0; font-size: 20px; }
-    header a { color: #fff; text-decoration: none; }
-    main {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 24px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--brand), #2a9dbb);
+      color: #fff;
+      font-weight: 800;
+      font-size: 18px;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--text-2);
+      font-size: 12px;
     }
     .status {
       display: inline-flex;
@@ -45,117 +76,300 @@
       gap: 8px;
       padding: 8px 12px;
       border-radius: 6px;
-      background: #e7f3ee;
-      color: var(--ok);
+      background: #eaf6f0;
+      color: var(--success);
+      font-size: 13px;
       font-weight: 600;
     }
     .status.offline {
       background: #fff0e9;
       color: var(--danger);
     }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
     .panel {
-      background: var(--panel);
+      background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
+      box-shadow: var(--shadow);
       padding: 20px;
-      margin-bottom: 18px;
+    }
+    .panel-title {
+      margin: 0 0 14px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 600;
     }
     textarea {
       width: 100%;
-      min-height: 90px;
+      min-height: 110px;
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: 6px;
+      font: inherit;
       font-size: 15px;
-      font-family: inherit;
       resize: vertical;
+      outline: none;
+    }
+    textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(15, 110, 140, 0.14);
+    }
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .quick-actions button {
+      border: 1px solid var(--line);
+      background: #f6f9fb;
+      color: var(--text);
     }
     .actions {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
     button {
       border: 0;
       border-radius: 6px;
-      padding: 10px 16px;
+      padding: 11px 16px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease;
     }
-    .primary { background: var(--accent); color: #fff; }
-    .secondary { background: #eef3f6; color: var(--accent); border: 1px solid var(--line); }
-    .warn { background: var(--accent-2); color: #fff; }
-    .meta {
-      color: var(--muted);
+    button:hover {
+      opacity: 0.92;
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+    .primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .secondary {
+      background: #eef4f7;
+      color: var(--brand-dark);
+      border: 1px solid var(--line);
+    }
+    .ghost {
+      background: transparent;
+      color: var(--text-2);
+      border: 1px solid var(--line);
+    }
+    .feedback {
+      min-height: 64px;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 6px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: var(--text-2);
       font-size: 13px;
-      margin-top: 10px;
+      line-height: 1.6;
       white-space: pre-wrap;
+    }
+    .feedback.success {
+      background: #eaf6f0;
+      border-color: #c7e5d4;
+      color: var(--success);
+    }
+    .feedback.error {
+      background: #fff0e9;
+      border-color: #f6cbbb;
+      color: var(--danger);
     }
     pre {
-      background: #0f1720;
-      color: #e8f1f7;
+      margin: 0;
+      background: #102027;
+      color: #eaf5fa;
       border-radius: 8px;
       padding: 16px;
+      min-height: 360px;
+      max-height: 640px;
       overflow: auto;
-      max-height: 520px;
       white-space: pre-wrap;
       word-break: break-word;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .history-header h2 {
+      margin: 0;
+      font-size: 15px;
+    }
+    .table-wrap {
+      overflow-x: auto;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 14px;
+      font-size: 13px;
     }
-    th, td {
-      text-align: left;
-      padding: 10px;
+    th,
+    td {
+      padding: 12px 10px;
       border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
     }
-    th { color: var(--muted); font-weight: 600; }
-    code { background: #eef3f6; padding: 2px 5px; border-radius: 4px; }
+    th {
+      color: var(--text-2);
+      font-weight: 600;
+    }
+    code {
+      background: #eef4f7;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 12px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge.success {
+      background: #eaf6f0;
+      color: var(--success);
+    }
+    .badge.failed {
+      background: #fff0e9;
+      color: var(--danger);
+    }
+    .empty {
+      padding: 20px 0;
+      color: var(--text-2);
+      text-align: center;
+    }
+    footer {
+      max-width: 1180px;
+      margin: 18px auto 0;
+      padding: 0 24px 24px;
+      color: var(--text-2);
+      font-size: 12px;
+    }
+    @media (max-width: 820px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      main {
+        padding: 16px;
+      }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>NewsAgent</h1>
-    <a href="/docs" target="_blank">API 文档</a>
-  </header>
-  <main>
-    <div class="status" id="health">正在检查服务状态...</div>
-
-    <section class="panel">
-      <h2>运行 Agent</h2>
-      <textarea id="query" aria-label="输入任务">看今日简报</textarea>
-      <div class="actions">
-        <button class="primary" id="run-btn">运行 Agent</button>
-        <button class="secondary" id="demo-btn">查看演示日报</button>
+    <div class="nav">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">N</div>
+        <div>
+          <h1>NewsAgent</h1>
+          <p>AI 新闻自动化工作台</p>
+        </div>
       </div>
-      <div class="meta" id="run-meta"></div>
+      <div class="status" id="health" role="status">正在检查服务状态...</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="panel">
+        <h2 class="panel-title">创建任务</h2>
+        <label for="query">输入任务</label>
+        <textarea id="query">看今日简报</textarea>
+
+        <div class="quick-actions" aria-label="快捷任务">
+          <button type="button" class="secondary" data-query="看今日简报">今日简报</button>
+          <button type="button" class="secondary" data-query="查一下 AI Agent 主题">主题检索</button>
+          <button type="button" class="ghost" id="demo-btn">查看示例</button>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="primary" id="run-btn">开始运行</button>
+          <button type="button" class="ghost" id="clear-btn">清空输出</button>
+        </div>
+
+        <div class="feedback" id="feedback" aria-live="polite">请选择任务或输入内容后开始运行。</div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">生成结果</h2>
+        <pre id="output" aria-live="polite">暂无输出，运行任务后将在此显示日报或检索报告。</pre>
+      </div>
     </section>
 
-    <section class="panel">
-      <h2>输出</h2>
-      <pre id="output">等待运行...</pre>
-    </section>
-
-    <section class="panel">
-      <h2>历史任务</h2>
-      <table>
-        <thead>
-          <tr><th>任务 ID</th><th>输入</th><th>意图</th><th>状态</th><th>耗时</th></tr>
-        </thead>
-        <tbody id="tasks"></tbody>
-      </table>
+    <section class="panel" style="margin-top: 18px;">
+      <div class="history-header">
+        <h2>最近任务</h2>
+        <button type="button" class="secondary" id="refresh-btn">刷新</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>任务</th>
+              <th>类型</th>
+              <th>状态</th>
+              <th>耗时</th>
+            </tr>
+          </thead>
+          <tbody id="tasks">
+            <tr>
+              <td colspan="4" class="empty">暂无历史任务</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </main>
+
+  <footer>当前服务仅限本机访问，如需向其他设备开放，请参考项目 README 中的访问说明。</footer>
 
   <script>
     const healthEl = document.getElementById("health");
     const outputEl = document.getElementById("output");
-    const metaEl = document.getElementById("run-meta");
+    const feedbackEl = document.getElementById("feedback");
     const queryEl = document.getElementById("query");
+    const runBtn = document.getElementById("run-btn");
+    const demoBtn = document.getElementById("demo-btn");
+    const clearBtn = document.getElementById("clear-btn");
+    const refreshBtn = document.getElementById("refresh-btn");
     const tasksBody = document.getElementById("tasks");
 
     async function checkHealth() {
@@ -165,66 +379,104 @@
         healthEl.textContent = `服务正常 · v${data.version}`;
         healthEl.classList.remove("offline");
       } catch (err) {
-        healthEl.textContent = "服务不可用";
+        healthEl.textContent = "服务暂不可用";
         healthEl.classList.add("offline");
       }
     }
 
+    function setFeedback(text, state) {
+      feedbackEl.textContent = text;
+      feedbackEl.className = "feedback" + (state ? ` ${state}` : "");
+    }
+
     async function runAgent() {
-      metaEl.textContent = "正在运行，请稍候...";
-      outputEl.textContent = "Agent 执行中...";
+      runBtn.disabled = true;
+      setFeedback("正在运行任务，请稍候...", "");
+      outputEl.textContent = "任务执行中...";
       try {
         const res = await fetch("/api/agent/run", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({query: queryEl.value})
+          body: JSON.stringify({query: queryEl.value, send_email: false})
         });
         const data = await res.json();
         if (!res.ok) {
-          outputEl.textContent = data.detail || "运行失败";
-          metaEl.textContent = "运行失败";
-          return;
+          throw new Error(data.detail || "任务运行失败");
         }
-        outputEl.textContent = data.report || "无输出";
-        metaEl.textContent = `任务 ID: ${data.task_id}\n意图: ${data.intent}\n耗时: ${data.duration_ms}ms\n状态: ${data.status}`;
+        outputEl.textContent = data.report || "任务已完成，但没有生成报告。";
+        setFeedback(
+          `任务已完成\n任务编号：${data.task_id}\n任务类型：${data.intent}\n执行耗时：${data.duration_ms}ms`,
+          "success"
+        );
         loadTasks();
       } catch (err) {
-        outputEl.textContent = String(err);
-        metaEl.textContent = "请求失败";
+        outputEl.textContent = "任务执行失败，请检查服务配置后重试。";
+        setFeedback(err.message || String(err), "error");
+      } finally {
+        runBtn.disabled = false;
       }
     }
 
     async function loadDemo() {
+      runBtn.disabled = true;
+      setFeedback("正在加载示例报告...", "");
       try {
         const res = await fetch("/api/demo");
         const data = await res.json();
-        outputEl.textContent = data.report;
-        metaEl.textContent = "当前展示的是内置演示日报，不消耗 API Token。";
+        outputEl.textContent = data.report || "示例报告不可用。";
+        setFeedback("示例报告已加载。", "success");
       } catch (err) {
-        outputEl.textContent = String(err);
+        outputEl.textContent = "示例报告加载失败。";
+        setFeedback(err.message || String(err), "error");
+      } finally {
+        runBtn.disabled = false;
       }
     }
 
     async function loadTasks() {
       try {
-        const res = await fetch("/api/tasks?limit=10");
+        const res = await fetch("/api/tasks?limit=8");
         const data = await res.json();
+        if (!data.tasks || data.tasks.length === 0) {
+          tasksBody.innerHTML = `<tr><td colspan="4" class="empty">暂无历史任务</td></tr>`;
+          return;
+        }
         tasksBody.innerHTML = data.tasks.map(task => `
           <tr>
-            <td><code>${task.task_id}</code></td>
-            <td>${task.user_input}</td>
-            <td>${task.intent}</td>
-            <td>${task.status}</td>
+            <td><code>${task.task_id}</code> · ${escapeHtml(task.user_input)}</td>
+            <td>${escapeHtml(task.intent)}</td>
+            <td><span class="badge ${task.status === "success" ? "success" : "failed"}">${task.status}</span></td>
             <td>${task.duration_ms}ms</td>
           </tr>
         `).join("");
       } catch (err) {
-        tasksBody.innerHTML = `<tr><td colspan="5">无法加载历史任务</td></tr>`;
+        tasksBody.innerHTML = `<tr><td colspan="4" class="empty">无法加载历史任务</td></tr>`;
       }
     }
 
-    document.getElementById("run-btn").addEventListener("click", runAgent);
-    document.getElementById("demo-btn").addEventListener("click", loadDemo);
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    document.querySelectorAll("[data-query]").forEach(button => {
+      button.addEventListener("click", () => {
+        queryEl.value = button.dataset.query;
+        runAgent();
+      });
+    });
+
+    runBtn.addEventListener("click", runAgent);
+    demoBtn.addEventListener("click", loadDemo);
+    clearBtn.addEventListener("click", () => {
+      outputEl.textContent = "暂无输出，运行任务后将在此显示日报或检索报告。";
+      setFeedback("输出已清空。", "");
+    });
+    refreshBtn.addEventListener("click", loadTasks);
+
     checkHealth();
     loadTasks();
   </script>

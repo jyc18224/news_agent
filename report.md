@@ -1,41 +1,48 @@
-# AI 新闻简报 2026-05-20
+# AI 新闻简报 2026-09-01
 
 📊 今日抓取总量：10 篇
 
-## 【教育】 (1 篇)
-
-📝 类别综述：OpenAI启动了“国家教育计划”的下一阶段，旨在通过定制化AI工具支持全球各国的教育系统。该计划将重点提升教师效率与学生学习体验，推动教育公平与质量提升。
-
-| 标题 | 摘要 |
-| :--- | :--- |
-| The next phase of OpenAI’s Education for Countries | The next phase of OpenAI’s Education for Countries |
-
 ## 【科技】 (7 篇)
 
-📝 类别综述：OpenAI expands its presence in Singapore and partners with Dell to bring Codex to enterprise environments, while also collaborating with Malta to offer ChatGPT Plus to citizens. Meanwhile, Google highlights its AI design capabilities at IO 2026, introducing AI-powered Gmail and advanced search agents, marking a significant push in the evolving AI landscape.
+📝 类别综述：科技领域迎来多项进展：OpenAI扩大在巴西的布局，Caterpillar将采矿自动化经验应用于AI部署，而Cursor在被SpaceX收购后作出重要决策。同时，泰国积极支持新一代AI初创企业，Circleback推出免费版提升用户吸引力。此外，中国在无人机和机器人技术上展现规模优势，而美国则加强相关技术的壁垒。这些动态标志着AI应用与竞争格局的持续演变。
 
 | 标题 | 摘要 |
 | :--- | :--- |
-| Introducing OpenAI for Singapore | Introducing OpenAI for Singapore |
-| Advancing content provenance for a safer, more transparent AI ecosystem | Advancing content provenance for a safer, more transparent AI ecosystem |
-| OpenAI and Dell partner to bring Codex to hybrid and on-premise enterprise environments | OpenAI and Dell partner to bring Codex to hybrid and on-premise enterprise environments |
-| OpenAI and Malta partner to bring ChatGPT Plus to all citizens | OpenAI and Malta partner to bring ChatGPT Plus to all citizens |
-| Google just declared itself a contender in AI design at IO 2026 | Google just declared itself a contender in AI design at IO 2026 |
-| You can now talk to your Gmail inbox, as seen at Google IO 2026 | You can now talk to your Gmail inbox, as seen at Google IO 2026 |
-| How to use Google’s new AI agents to go beyond your standard searches | How to use Google’s new AI agents to go beyond your standard searches |
+| A milestone in expanding access to AI | A milestone in expanding access to AI |
+| Our decision on Cursor following its acquisition by SpaceX | Our decision on Cursor following its acquisition by SpaceX |
+| Supporting Thailand’s next generation of AI startups | Supporting Thailand’s next generation of AI startups |
+| Expanding OpenAI’s presence in Brazil | Expanding OpenAI’s presence in Brazil |
+| Meeting note-taker Circleback adds a free tier to attract more customers | Meeting note-taker Circleback adds a free tier to attract more customers |
+| The US is building barriers around drones and robots, but China has scale to get around them | The US is building barriers around drones and robots, but China has scale to get around them |
+| Caterpillar is bringing to AI deployment what it learned from automating mining | Caterpillar is bringing to AI deployment what it learned from automating mining |
 
-## 【其他】 (2 篇)
+## 【教育】 (1 篇)
 
-📝 类别综述：一位曾是青少年黑客的创始人，如今致力于研发对抗AI网络钓鱼的技术，并成功筹集2800万美元资金。与此同时，埃隆·马斯克指控萨姆·阿尔特曼“窃取”一家非营利组织，但审判显示两人目标相似。这两则新闻反映了科技领域在创新与伦理之间的复杂互动。
+📝 类别综述：通过结合ChatGPT与批判性思维训练，学生不仅能够获得更准确的答案，还提升了分析和解决问题的能力。这种教学方式鼓励学生深入思考，而非依赖单一答案，有助于培养更具创造力和独立思考能力的下一代。
 
 | 标题 | 摘要 |
 | :--- | :--- |
-| From teen hacker to Iron Dome researcher, this founder raised $28M to fight AI phishing | From teen hacker to Iron Dome researcher, this founder raised $28M to fight AI phishing |
-| Elon Musk said Sam Altman ‘stole’ a non-profit — but the trial showed he had similar aims | Elon Musk said Sam Altman ‘stole’ a non-profit — but the trial showed he had similar aims |
+| Better answers, broader thinking: What students gain from ChatGPT and critical-thinking training | Better answers, broader thinking: What students gain from ChatGPT and critical-thinking training |
+
+## 【财经】 (1 篇)
+
+📝 类别综述：Nvidia斥资3.5亿美元投资联发科，凸显其在人工智能芯片领域对抗科技巨头的战略布局。此举旨在加强自身在AI芯片市场的竞争力，应对谷歌、Meta等大厂自研芯片的挑战，进一步巩固其在AI硬件生态中的地位。
+
+| 标题 | 摘要 |
+| :--- | :--- |
+| Nvidia’s $3.5B MediaTek bet reveals its plan for tackling Big Tech’s AI chip buildout | Nvidia’s $3.5B MediaTek bet reveals its plan for tackling Big Tech’s AI chip buildout |
+
+## 【其他】 (1 篇)
+
+📝 类别综述：马斯克推动更快部署燃气轮机以提升能源供应，但这一策略也带来了环境污染问题。尽管燃气轮机能提高电力灵活性，但其排放的温室气体和污染物引发环保担忧，如何平衡能源需求与环境保护成为关键挑战。
+
+| 标题 | 摘要 |
+| :--- | :--- |
+| Musk’s faster path to more gas turbines comes with pollution problem | Musk’s faster path to more gas turbines comes with pollution problem |
 
 ---
 
 # 🎯 编辑推荐
 
-推荐：【OpenAI and Malta partner to bring ChatGPT Plus to all citizens】  
-理由：推动AI技术普惠，体现OpenAI在国家层面的影响力扩展，具有社会与技术双重意义。
+推荐：【Nvidia’s $3.5B MediaTek bet reveals its plan for tackling Big Tech’s AI chip buildout】
+理由：Nvidia重金投资MediaTek，凸显其在AI芯片领域的战略布局，反映科技巨头争夺AI算力的激烈竞争。

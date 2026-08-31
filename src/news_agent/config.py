@@ -13,7 +13,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 def load_config(
     sources_path: str = "config/sources.yaml", project_root: Path | None = None
 ) -> dict:
-    """Load and parse the YAML config, expanding ${ENV_VAR} placeholders."""
     root = project_root or PROJECT_ROOT
     config_path = root / sources_path
     if not config_path.exists():

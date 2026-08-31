@@ -23,7 +23,7 @@ def get_langfuse():
             secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
             host=os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com"),
         )
-    except Exception as exc:  # pragma: no cover - depends on external SDK availability
+    except Exception as exc:
         logger.warning("Langfuse is enabled but could not be initialized: %s", exc)
         return None
 
@@ -62,7 +62,5 @@ def capture_run_trace(
             },
         )
         langfuse.flush()
-    except (
-        Exception
-    ) as exc:  # pragma: no cover - external service failures should not break the app
+    except Exception as exc:
         logger.warning("Failed to capture Langfuse trace: %s", exc)

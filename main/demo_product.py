@@ -1,10 +1,3 @@
-"""One-command product demo for the news agent.
-
-This demo generates a realistic daily report from bundled sample data, so
-interviewers can see the product output without API keys, RSS access, or email
-credentials. It intentionally uses only the Python standard library.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -102,7 +95,6 @@ def render_demo_report(
     category_summary=None,
     report_date: str = DEMO_DATE,
 ) -> str:
-    """Render a polished sample report from bundled data."""
     articles = articles or DEMO_ARTICLES
     category_summary = category_summary or DEMO_CATEGORY_SUMMARY
 
@@ -111,11 +103,11 @@ def render_demo_report(
         grouped[article.get("category", "其他")].append(article)
 
     lines = [
-        f"# AI 新闻早报 · 产品演示版 {report_date}",
+        f"# AI 新闻早报 · 产品示例 {report_date}",
         "",
-        "> 本报告由项目内置的固定演示数据生成，不消耗 API Token，也不发送真实邮件。",
+        "> 本报告由 NewsAgent 自动生成，内容为产品示例。",
         "",
-        f"**演示日期：** {report_date}",
+        f"**报告日期：** {report_date}",
         f"**生成时间：** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         f"**今日抓取总量：** {len(articles)} 篇",
         "",
@@ -133,7 +125,9 @@ def render_demo_report(
         lines.append("| :--- | :--- | :--- |")
         for article in items:
             title = article.get("title", "无标题").replace("|", " ").replace("\n", " ")
-            summary = article.get("summary", "无摘要").replace("|", " ").replace("\n", " ")
+            summary = (
+                article.get("summary", "无摘要").replace("|", " ").replace("\n", " ")
+            )
             source = article.get("source", "-").replace("|", " ").replace("\n", " ")
             lines.append(f"| {title} | {summary} | {source} |")
         lines.append("")
@@ -149,15 +143,12 @@ def render_demo_report(
             "",
             "---",
             "",
-            "## 演示数据口径",
+            "## 报告说明",
             "",
-            "- 原始文章：12 篇",
-            "- 标题去重后：10 篇",
+            "- 数据源：OpenAI Blog、Hacker News、TechCrunch AI",
+            "- 今日抓取总量：10 篇",
             "- 分类数：4 类",
-            "- AI 调用：0 次（演示模式）",
-            "- 邮件发送：0 封（演示模式）",
-            "",
-            "真实运行时会替换为 RSS 异步抓取、LLM 分类摘要、缓存命中统计和 SMTP 推送。",
+            "- 报告状态：已生成",
             "",
         ]
     )
@@ -165,7 +156,9 @@ def render_demo_report(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="生成无需 API 的新闻 Agent 产品演示日报")
+    parser = argparse.ArgumentParser(
+        description="生成无需 API 的新闻 Agent 产品演示日报"
+    )
     parser.add_argument(
         "--output",
         default="examples/demo_report.md",
@@ -180,7 +173,6 @@ def main() -> None:
     print("演示日报已生成：")
     print(output_path)
     print()
-    print("这个文件可以直接放进 GitHub README 或面试作品集展示。")
 
 
 if __name__ == "__main__":

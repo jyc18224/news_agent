@@ -7,7 +7,6 @@ from news_agent.config import PROJECT_ROOT, load_config
 from news_agent.graph import graph
 from news_agent.utils.logger import logger
 
-# 加载环境变量
 load_dotenv()
 
 
@@ -17,7 +16,6 @@ async def run_news_agent(
     confirm_email=False,
     send_email=None,
 ):
-    """运行新闻 Agent 工作流的主函数。"""
     total_start = datetime.now()
     logger.info("=" * 40)
     logger.info("       新闻 AI Agent 开始运行           ")
@@ -44,7 +42,6 @@ async def run_news_agent(
         "email_error": None,
     }
 
-    # 线程 ID 用于持久化存储区分不同的会话
     run_config = {"configurable": {"thread_id": "news_agent"}}
 
     try:
@@ -55,7 +52,6 @@ async def run_news_agent(
         logger.info(f"工作流运行完成！总耗时: {total_cost:.2f}s")
         logger.info("=" * 40)
 
-        # 打印执行统计信息
         print(f"\n{'='*20} 运行统计 {'='*20}")
         print(f"原始文章数: {len(final_state.get('raw_articles', []))}")
         print(f"清洗后数量: {len(final_state.get('cleaned_articles', []))}")
@@ -68,7 +64,6 @@ async def run_news_agent(
                 count = data.get("count", 0) if isinstance(data, dict) else 0
                 print(f"- 【{cat}】 ({count} 篇)")
 
-        # 检查邮件发送状态
         email_sent = final_state.get("email_sent", False)
         email_error = final_state.get("email_error")
         if email_sent:
@@ -76,7 +71,6 @@ async def run_news_agent(
         elif email_error:
             logger.error(f"邮件发送失败: {email_error}")
 
-        # 将生成的 Markdown 报告保存到文件
         report_content = final_state.get("report", "")
         if report_content:
             output_full_path = PROJECT_ROOT / output_path

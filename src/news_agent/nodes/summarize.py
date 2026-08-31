@@ -4,20 +4,20 @@ from typing import List, Dict
 from collections import defaultdict
 from openai import OpenAI
 
-from ..utils.cache import get_summary_cache, get_category_summary_cache, set_summary_cache
+from ..utils.cache import (
+    get_summary_cache,
+    get_category_summary_cache,
+    set_summary_cache,
+)
 from ..utils.logger import logger
 
-# LLM 客户端配置
 client = OpenAI(
     api_key=os.getenv("DASHSCOPE_API_KEY"),
-    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
 )
 
+
 def generate_summary(article: Dict) -> Dict:
-    """
-    为单篇文章生成简洁摘要。
-    利用缓存机制避免重复的 LLM 调用。
-    """
     title = article.get("title", "").strip()
     content = article.get("content", "").strip()
 
@@ -26,7 +26,6 @@ def generate_summary(article: Dict) -> Dict:
         article["summary"] = cached
         return article
 
-    # 如果正文太短，则直接使用标题作为摘要
     if not content or len(content) < 50:
         summary = title
     else:
@@ -39,7 +38,7 @@ def generate_summary(article: Dict) -> Dict:
                 model="qwen-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.3,
-                max_tokens=150
+                max_tokens=150,
             )
             summary = resp.choices[0].message.content.strip()
         except Exception as e:
@@ -50,25 +49,21 @@ def generate_summary(article: Dict) -> Dict:
     set_summary_cache(title, summary)
     return article
 
+
 def summarize_single_batch_node(state: dict) -> dict:
-    """
-    LangGraph 节点：批量处理单篇文章摘要。
-    """
     logger.info("开始生成单篇摘要...")
     start_time = datetime.now()
-    
+
     articles = state.get("classified_articles", [])
     summarized = [generate_summary(art) for art in articles]
 
     cost = (datetime.now() - start_time).total_seconds()
     logger.info(f"单篇摘要完成：共处理 {len(summarized)} 篇文章 | 耗时: {cost:.2f}s")
-    
+
     return {"classified_articles": summarized}
 
+
 def summarize_by_category(articles: List[Dict]) -> Dict:
-    """
-    为每个新闻类别生成整合后的摘要。
-    """
     grouped = defaultdict(list)
     for art in articles:
         cat = art.get("category", "其他")
@@ -93,20 +88,21 @@ def summarize_by_category(articles: List[Dict]) -> Dict:
                 model="qwen-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.1,
-                max_tokens=500
+                max_tokens=500,
             )
             summary = resp.choices[0].message.content.strip()
             category_summary[cat] = {"count": len(arts), "summary": summary}
         except Exception as e:
             logger.error(f"分类汇总摘要失败 '{cat}': {e}")
-            category_summary[cat] = {"count": len(arts), "summary": "生成汇总摘要失败。"}
-            
+            category_summary[cat] = {
+                "count": len(arts),
+                "summary": "生成汇总摘要失败。",
+            }
+
     return category_summary
 
+
 def summarize_category_node(state: dict) -> dict:
-    """
-    LangGraph 节点：生成类别级别的整合摘要。
-    """
     logger.info("开始生成类别汇总摘要...")
     start_time = datetime.now()
 
@@ -114,14 +110,14 @@ def summarize_category_node(state: dict) -> dict:
     summary_result = summarize_by_category(articles)
 
     cost = (datetime.now() - start_time).total_seconds()
-    logger.info(f"类别汇总完成：共处理 {len(summary_result)} 个类别 | 耗时: {cost:.2f}s")
-    
+    logger.info(
+        f"类别汇总完成：共处理 {len(summary_result)} 个类别 | 耗时: {cost:.2f}s"
+    )
+
     return {"category_summary": summary_result}
 
+
 def extra_check_node(state: dict) -> dict:
-    """
-    可选的校验节点，用于处理大量文章。
-    """
     count = len(state.get("classified_articles", []))
     logger.info(f"触发额外校验节点：正在处理 {count} 篇文章。")
     return state

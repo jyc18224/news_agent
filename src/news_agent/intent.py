@@ -10,7 +10,6 @@ TOPIC_KEYWORDS = ("关于", "主题", "搜索", "查找", "查一下", "查一�
 
 
 def detect_intent(query: str) -> str:
-    """Classify the user request into a daily briefing or topic search intent."""
     text = (query or "").strip().lower()
     if not text:
         return INTENT_DAILY_BRIEFING
@@ -33,7 +32,6 @@ def detect_intent(query: str) -> str:
 
 
 def extract_topic(query: str) -> str:
-    """Extract a compact topic phrase from the user query."""
     text = (query or "").strip()
     for marker in ("关于", "查一下", "查一查", "搜索", "查找", "主题"):
         if marker in text:

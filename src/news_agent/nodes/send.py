@@ -7,15 +7,11 @@ from ..utils.logger import logger
 
 
 def ask_send_confirmation() -> bool:
-    """Human-in-the-loop gate before a real email is sent."""
     answer = input("是否发送？Y/N: ").strip().lower()
     return answer in {"y", "yes", "是"}
 
 
 def send_email(report_md: str, email_config: dict) -> bool:
-    """
-    通过 SMTP 发送生成的 Markdown 报告邮件。
-    """
     if not email_config.get("enabled", False):
         logger.info("邮件通知功能已禁用，跳过发送步骤。")
         return True
@@ -47,9 +43,6 @@ def send_email(report_md: str, email_config: dict) -> bool:
 
 
 def send_email_node(state: dict) -> dict:
-    """
-    LangGraph 节点：发送新闻简报邮件。
-    """
     logger.info("准备发送邮件通知...")
     start_time = datetime.now()
 

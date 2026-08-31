@@ -83,6 +83,8 @@ uv run uvicorn news_agent.api:app --host 0.0.0.0 --port 8000
 - API 文档：http://localhost:8000/docs
 - 健康检查：http://localhost:8000/health
 
+仅在本机启动时，服务只接受本机访问；若使用 `--host 0.0.0.0`，局域网内其他设备可通过本机局域网 IP 访问。
+
 ### 配置环境变量
 
 复制 `.env.example` 为 `.env`：
@@ -181,13 +183,14 @@ healthCheckPath: /health
 
 ### 本地验证
 
-- Python 测试：`21 passed`
+- Python 测试：`23 passed`
 - FastAPI 健康检查：`GET /health` 返回 `200 OK`
 - Web 控制台：`GET /` 返回 `200 OK`
 - 演示报告接口：`GET /api/demo` 返回完整 Markdown 日报
 - 主题检索接口：`POST /api/agent/run` 成功写入 SQLite 任务记录
 - Docker 配置：`Dockerfile`、`docker-compose.yml`、`render.yaml`、`railway.json` 已提供
 - Docker Compose 配置校验：`docker compose config --quiet` 通过
+- 本地访问验证：`http://localhost:8000/`、`/docs`、`/health` 均返回 `200 OK`
 
 ### 公网部署状态
 
@@ -204,12 +207,38 @@ Docker 镜像构建在本机尝试时因 Docker Hub 基础镜像拉取超时未�
 
 ---
 
+## 访问范围与权限
+
+默认部署在本机时，服务仅允许本机访问：
+
+- Web 控制台：http://localhost:8000
+- API 文档：http://localhost:8000/docs
+- 健康检查：http://localhost:8000/health
+
+其他设备无法直接访问以上地址。
+
+如需让局域网内其他设备访问：
+
+```bash
+uv run uvicorn news_agent.api:app --host 0.0.0.0 --port 8000
+```
+
+然后：
+
+1. 确认本机防火墙已放行 TCP 8000 端口
+2. 使用本机局域网 IP 访问，例如 `http://192.168.1.20:8000`
+3. 如仍无法访问，检查路由器或虚拟网络是否阻止设备间通信
+
+如需公网访问，请将项目部署到 Render 或 Railway，并使用平台分配的 HTTPS 地址。
+
+---
+
 ## 项目结构
 
 ```text
 config/sources.yaml              # 新闻源、邮件与任务配置
 main/run_graph.py                # 命令行完整工作流
-main/demo_product.py             # 无密钥产品演示
+main/demo_product.py             # 示例报告生成入口
 src/news_agent/api.py            # FastAPI 服务
 src/news_agent/web/index.html    # Web 控制台
 src/news_agent/service.py        # Agent 业务服务层
@@ -219,7 +248,6 @@ src/news_agent/observability.py  # Langfuse 追踪
 src/news_agent/graph.py          # LangGraph 工作流
 tests/                           # 自动化测试
 examples/demo_report.md          # 示例日报
-docs/INTERVIEW.md                # 作品说明与答辩材料
 Dockerfile                       # 容器镜像
 docker-compose.yml               # 本地容器编排
 render.yaml                      # Render 部署配置
@@ -243,3 +271,4 @@ uv run pytest tests/
 - 意图识别
 - SQLite 持久化
 - 产品演示输出
+- 邮件发送

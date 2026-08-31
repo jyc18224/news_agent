@@ -1,5 +1,7 @@
 import feedparser
 import requests
+
+
 def fetch_from_rss_sync(url):
     try:
         response = requests.get(url, timeout=10)
@@ -8,17 +10,20 @@ def fetch_from_rss_sync(url):
 
         articles = []
         for entry in feed.entries[:5]:
-            articles.append({
-                "title": entry.get("title", "无标题"),
-                "link": entry.get("link", ""),
-                "summary": entry.get("summary", ""),
-                "published": entry.get("published", "")
-            })
+            articles.append(
+                {
+                    "title": entry.get("title", "无标题"),
+                    "link": entry.get("link", ""),
+                    "summary": entry.get("summary", ""),
+                    "published": entry.get("published", ""),
+                }
+            )
         return articles
 
     except Exception as e:
         print(f"抓取失败 {url}：{str(e)}")
         return []
+
 
 def fetch_sources_node(state):
     sources = state["config"]["sources"]
