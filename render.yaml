@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: news-agent
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DASHSCOPE_API_KEY
+        sync: false
+      - key: EMAIL_SENDER
+        sync: false
+      - key: EMAIL_AUTH_CODE
+        sync: false
+      - key: EMAIL_TO
+        sync: false
+      - key: LANGFUSE_ENABLED
+        value: false
+      - key: LANGFUSE_PUBLIC_KEY
+        sync: false
+      - key: LANGFUSE_SECRET_KEY
+        sync: false
+      - key: LANGFUSE_HOST
+        value: https://cloud.langfuse.com

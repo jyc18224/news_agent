@@ -7,7 +7,6 @@ from datetime import datetime
 from ..utils.logger import logger
 
 from ..state import AgentState
-from datetime import datetime
 
 
 async def fetch_one_rss(session: aiohttp.ClientSession, rss_url: str, timeout: int = 10) -> List[Dict]:

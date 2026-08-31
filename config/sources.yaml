@@ -13,6 +13,7 @@ sources:
 
 email:
   enabled: true
+  confirm_before_send: false
   sender: "${EMAIL_SENDER}"
   auth_code: "${EMAIL_AUTH_CODE}"
   smtp_server: "smtp.163.com"

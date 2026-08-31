@@ -1,162 +1,245 @@
-# NewsAgent：一条命令生成你的 AI 新闻早报
+# NewsAgent
 
-NewsAgent 是一个面向个人开发者、团队和内容运营者的 AI 自动化新闻产品。它把 **RSS 抓取、异步并发、标题去重、文本清洗、LLM 分类、单篇摘要、分类综述、Markdown 日报、邮件推送** 串成一个 LangGraph 工作流，实现无人值守的每日简报。
-
-> 这个仓库不只是“能跑的代码”，它是一份可以直接拿去面试演示的产品作品：有明确用户价值、有可演示输出、有成本控制、有测试、有部署入口。
+NewsAgent 是一个面向个人和团队的 AI 新闻早报 Agent。它从多个 RSS 新闻源自动抓取内容，完成去重、清洗、分类、摘要、综述、Markdown 日报生成与邮件推送，并通过标准化 HTTP API 和 Web 控制台对外提供服务。
 
 ---
 
-## 30 秒看懂产品
+## 核心能力
 
-**一句话：** 每天自动把分散的新闻源整理成一份分类清晰、有编辑推荐的日报，并通过邮件推送给目标用户。
+### 1. 业务闭环
 
-**目标用户：** 产品经理、运营、开发者、投资研究者、任何需要每天快速掌握行业动态的人。
+NewsAgent 覆盖完整业务链路：
 
-**核心价值：**
+```text
+RSS 新闻源 -> 异步抓取 -> 标题去重 -> 文本清洗 -> 意图识别
+           -> AI 分类 -> AI 摘要 -> 分类综述 -> 日报生成 -> 邮件推送
+```
 
-- 从“每天自己刷 20 个网站”变成“每天读一份 10 分钟日报”
-- 用缓存避免相同新闻重复调用大模型，降低 Token 成本
-- 用 LangGraph 把复杂流程拆成可维护、可观测、可扩展的节点
-- 支持定时运行，真正实现无人值守
+系统输出可直接阅读、归档和二次分发的 Markdown 日报，而不是只停留在模型调用阶段。
+
+### 2. 工程可靠性
+
+- 使用 LangGraph `StateGraph` 管理节点、状态、条件路由和 checkpoint
+- 每个数据源独立抓取，单个 RSS 失败不会中断整条链路
+- 分类、摘要、分类综述均带本地缓存，避免重复消耗 Token
+- 日志记录运行过程与错误信息
+- 提供 Dockerfile、健康检查、自动化测试和 SQLite 任务历史
+
+### 3. 任务规划能力
+
+- 入口处增加意图识别，自动分流：
+  - `看今日简报` 进入日报生成流程
+  - `查特定主题` 进入主题检索流程
+- 使用条件路由处理文章数量超过阈值的情况
+- 工作流状态通过统一 `AgentState` 传递，为后续扩展任务规划节点保留清晰边界
+
+### 4. 上下文管理
+
+- 将配置、原始文章、去重结果、清洗结果、分类结果、摘要、报告分别放入独立状态字段
+- 每个 LLM 节点只使用当前任务所需的最小子集，避免无关历史信息进入 prompt
+- 缓存以标题为键，降低重复内容对上下文的污染和 Token 成本
+
+### 5. 监控与评测
+
+- 内置日志体系，记录抓取、清洗、分类、摘要、报告、邮件各环节耗时
+- 可选接入 Langfuse，为每次 Agent 运行生成 trace
+- SQLite 保存任务 ID、用户输入、模型输出、执行耗时、任务状态与错误信息
+- 提供自动化测试，覆盖配置解析、意图识别、持久化、清洗、去重和演示输出
+
+### 6. 人类干预机制
+
+- 邮件发送前支持 Y/N 人工确认
+- 支持 `--no-send` 干跑模式，不触发真实邮件
+- API 默认不发送邮件，避免 Web 请求意外触发外发行为
 
 ---
 
-## 立即看产品效果
+## 快速开始
 
-不需要 API Key、不需要邮箱、不需要联网，一条命令生成演示日报：
+### 无密钥演示
+
+不需要 API Key、邮箱或 RSS 网络：
 
 ```bash
 python main/demo_product.py
 ```
 
-生成文件：
+生成示例日报：
 
-- [examples/demo_report.md](examples/demo_report.md)
-
-这份演示日报已经写入仓库，打开就能直接看产品的最终输出长什么样。
-
----
-
-## 产品架构
-
-```mermaid
-graph TD
-    A[RSS 新闻源] --> B[异步并发抓取]
-    B --> C[标题去重]
-    C --> D[文本清洗]
-    D --> E[LLM 批量分类<br/>带缓存]
-    E --> F[LLM 单篇摘要<br/>带缓存]
-    F --> G[LLM 分类综述<br/>带缓存]
-    G --> H[Markdown 日报]
-    H --> I[SMTP 邮件推送]
+```text
+examples/demo_report.md
 ```
 
-工作流使用 LangGraph `StateGraph` 编排，节点之间的状态通过 `AgentState` 传递；当文章数量超过阈值时，还可以进入额外校验节点。
-
----
-
-## 真实运行
-
-### 1. 安装依赖
-
-```bash
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# Mac / Linux
-source venv/bin/activate
-```
+### 本地启动 Web 服务
 
 ```bash
 uv sync
+uv run uvicorn news_agent.api:app --host 0.0.0.0 --port 8000
 ```
 
-### 2. 配置环境变量
+访问：
 
-复制 `.env.example` 为 `.env`，填入：
+- Web 控制台：http://localhost:8000
+- API 文档：http://localhost:8000/docs
+- 健康检查：http://localhost:8000/health
 
-- `DASHSCOPE_API_KEY`：通义千问兼容模式 API Key
-- `EMAIL_SENDER`：发件邮箱
-- `EMAIL_AUTH_CODE`：邮箱授权码
-- `EMAIL_TO`：收件邮箱
+### 配置环境变量
 
-### 3. 运行完整流程
+复制 `.env.example` 为 `.env`：
+
+```text
+DASHSCOPE_API_KEY=
+EMAIL_SENDER=
+EMAIL_AUTH_CODE=
+EMAIL_TO=
+LANGFUSE_ENABLED=false
+NEWS_AGENT_DB_PATH=data/news_agent.db
+```
+
+### 命令行运行
 
 ```bash
+# 完整日报流程
 python main/run_graph.py
-```
 
-生成的日报默认会保存为 `report.md`，同时也会写入 `report/news_daily_YYYY-MM-DD.md`。
+# 邮件发送前要求 Y/N 确认
+python main/run_graph.py --confirm-email
 
-### 4. 定时运行
+# 禁止发送邮件
+python main/run_graph.py --no-send
 
-```bash
+# 定时运行
 python main/auto_run.py
 ```
 
-GitHub Actions 中也配置了每日定时执行，可在 [.github/workflows/run.yml](.github/workflows/run.yml) 查看。
+---
+
+## HTTP API
+
+| 方法 | 路径 | 说明 |
+| :--- | :--- | :--- |
+| GET | `/` | Web 控制台 |
+| GET | `/health` | 健康检查 |
+| GET | `/api/demo` | 获取内置演示日报 |
+| POST | `/api/agent/run` | 运行 Agent，自动识别意图 |
+| GET | `/api/tasks` | 查询历史任务 |
+| GET | `/api/tasks/{task_id}` | 查询任务详情 |
+
+运行 Agent 示例：
+
+```bash
+curl -X POST http://localhost:8000/api/agent/run \
+  -H "Content-Type: application/json" \
+  -d '{"query":"看今日简报","send_email":false}'
+```
+
+主题检索示例：
+
+```bash
+curl -X POST http://localhost:8000/api/agent/run \
+  -H "Content-Type: application/json" \
+  -d '{"query":"查一下 AI Agent 主题","send_email":false}'
+```
+
+---
+
+## 容器化部署
+
+### 本地 Docker 构建
+
+```bash
+docker build -t news-agent .
+docker run --rm -p 8000:8000 \
+  -e DASHSCOPE_API_KEY=your_key \
+  news-agent
+```
+
+### Docker Compose
+
+```bash
+docker compose up --build
+```
+
+### Render
+
+项目包含 `render.yaml`，Render 可自动识别 Docker 部署配置：
+
+```text
+type: web
+runtime: docker
+dockerfilePath: ./Dockerfile
+healthCheckPath: /health
+```
+
+### Railway
+
+项目包含 `railway.json` 和 `Dockerfile`，Railway 可直接使用 Docker 构建。
+
+---
+
+## 部署证明
+
+### 本地验证
+
+- Python 测试：`21 passed`
+- FastAPI 健康检查：`GET /health` 返回 `200 OK`
+- Web 控制台：`GET /` 返回 `200 OK`
+- 演示报告接口：`GET /api/demo` 返回完整 Markdown 日报
+- 主题检索接口：`POST /api/agent/run` 成功写入 SQLite 任务记录
+- Docker 配置：`Dockerfile`、`docker-compose.yml`、`render.yaml`、`railway.json` 已提供
+- Docker Compose 配置校验：`docker compose config --quiet` 通过
+
+### 公网部署状态
+
+当前公网部署尚未完成。原因是本机未配置 Render 或 Railway 的账号凭据，无法代替用户完成账号注册、实名认证和云资源创建。
+
+Docker 镜像构建在本机尝试时因 Docker Hub 基础镜像拉取超时未完成，Dockerfile 本身已通过 Docker 构建器解析，Compose 配置已通过本地校验。
+
+部署文件已就绪。完成账号配置后，可按以下流程上线：
+
+1. 将本仓库推送到 GitHub
+2. 在 Render 中选择 Blueprint 或 Docker 服务，关联仓库
+3. 配置 `DASHSCOPE_API_KEY`、`EMAIL_SENDER`、`EMAIL_AUTH_CODE`、`EMAIL_TO`
+4. 获取公网 URL 后补充到本 README 的部署证明板块
 
 ---
 
 ## 项目结构
 
 ```text
-config/sources.yaml        # RSS 数据源与邮件配置
-main/run_graph.py          # 完整工作流入口
-main/auto_run.py           # 定时任务入口
-main/demo_product.py       # 无需 API 的产品演示入口
-src/news_agent/graph.py    # LangGraph 工作流
-src/news_agent/nodes/      # 抓取、去重、清洗、分类、摘要、报告、推送
-src/news_agent/utils/      # 缓存、日志、文本清理
-tests/                     # 配置、环境、核心函数测试
-examples/demo_report.md    # 可直接展示的示例日报
-docs/INTERVIEW.md          # 面试销售话术与答辩准备
+config/sources.yaml              # 新闻源、邮件与任务配置
+main/run_graph.py                # 命令行完整工作流
+main/demo_product.py             # 无密钥产品演示
+src/news_agent/api.py            # FastAPI 服务
+src/news_agent/web/index.html    # Web 控制台
+src/news_agent/service.py        # Agent 业务服务层
+src/news_agent/intent.py         # 意图识别分流
+src/news_agent/storage.py        # SQLite 持久化
+src/news_agent/observability.py  # Langfuse 追踪
+src/news_agent/graph.py          # LangGraph 工作流
+tests/                           # 自动化测试
+examples/demo_report.md          # 示例日报
+docs/INTERVIEW.md                # 作品说明与答辩材料
+Dockerfile                       # 容器镜像
+docker-compose.yml               # 本地容器编排
+render.yaml                      # Render 部署配置
+railway.json                     # Railway 部署配置
 ```
 
 ---
 
-## 产品亮点
+## 测试
 
-- **LangGraph 流程编排：** 节点、状态、条件路由、checkpoint 都围绕真实业务设计
-- **异步并发抓取：** 多个 RSS 源并行获取，缩短单次执行时间
-- **AI 缓存机制：** 分类、摘要、分类综述都有本地缓存，避免重复扣费
-- **结构化输出：** Markdown 日报可读、可归档、可二次加工
-- **无人值守：** 本地定时任务与 GitHub Actions 都支持
-- **可演示：** 不需要密钥也能向面试官展示最终产品形态
+```bash
+uv run pytest tests/
+```
 
----
+当前测试覆盖：
 
-## 面试怎么讲
-
-面试就是销售这个产品，销售顺序建议是：
-
-1. 先说用户痛点：信息过载、人工整理成本高
-2. 再说产品结果：一份自动生成的分类日报
-3. 再说技术方案：LangGraph + 异步抓取 + LLM + 缓存 + SMTP
-4. 最后说工程能力：测试、日志、定时任务、GitHub Actions、成本控制
-
-完整的 30 秒销售话术、常见追问和回答思路，放在：
-
-- [docs/INTERVIEW.md](docs/INTERVIEW.md)
-
----
-
-## 当前已具备的产品闭环
-
-- 数据获取：RSS 多源异步抓取
-- 数据处理：去重、清洗、分类、摘要
-- 内容生成：分类日报 + 编辑推荐
-- 触达用户：邮件推送
-- 自动运行：本地定时 + CI 定时
-- 可验证：测试、日志、样例输出
-
-## 可以继续补的下一阶段
-
-- 简单 Web 看板：历史日报、手动触发、导出
-- 多平台推送：钉钉、飞书、企业微信、Slack
-- 用户反馈：点赞/点踩摘要，用于迭代提示词
-- 持久化历史：用 SQLite 或数据库替代 JSON 缓存
-
-这些不是“当前必须重写”的代码，而是产品后续可以讲清楚的增长路径。
+- 配置文件解析
+- 运行环境依赖
+- 文本清洗
+- 标题去重
+- 意图识别
+- SQLite 持久化
+- 产品演示输出

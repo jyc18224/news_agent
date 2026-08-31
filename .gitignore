@@ -2,11 +2,12 @@
 .env
 .env.*
 !.env.example
-uv.lock
 
 cache.json
 logs/
 report/
+data/
+*.db
 
 venv/
 __pycache__/

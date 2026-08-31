@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NewsAgent 控制台</title>
+  <style>
+    :root {
+      --bg: #f4f7f9;
+      --panel: #ffffff;
+      --ink: #17212b;
+      --muted: #5f6c7a;
+      --line: #d8e0e6;
+      --accent: #176b87;
+      --accent-2: #d97706;
+      --ok: #178a5a;
+      --danger: #c2410c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+    }
+    header {
+      background: var(--ink);
+      color: #fff;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    header h1 { margin: 0; font-size: 20px; }
+    header a { color: #fff; text-decoration: none; }
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: #e7f3ee;
+      color: var(--ok);
+      font-weight: 600;
+    }
+    .status.offline {
+      background: #fff0e9;
+      color: var(--danger);
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 15px;
+      font-family: inherit;
+      resize: vertical;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .primary { background: var(--accent); color: #fff; }
+    .secondary { background: #eef3f6; color: var(--accent); border: 1px solid var(--line); }
+    .warn { background: var(--accent-2); color: #fff; }
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+    pre {
+      background: #0f1720;
+      color: #e8f1f7;
+      border-radius: 8px;
+      padding: 16px;
+      overflow: auto;
+      max-height: 520px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    th { color: var(--muted); font-weight: 600; }
+    code { background: #eef3f6; padding: 2px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>NewsAgent</h1>
+    <a href="/docs" target="_blank">API 文档</a>
+  </header>
+  <main>
+    <div class="status" id="health">正在检查服务状态...</div>
+
+    <section class="panel">
+      <h2>运行 Agent</h2>
+      <textarea id="query" aria-label="输入任务">看今日简报</textarea>
+      <div class="actions">
+        <button class="primary" id="run-btn">运行 Agent</button>
+        <button class="secondary" id="demo-btn">查看演示日报</button>
+      </div>
+      <div class="meta" id="run-meta"></div>
+    </section>
+
+    <section class="panel">
+      <h2>输出</h2>
+      <pre id="output">等待运行...</pre>
+    </section>
+
+    <section class="panel">
+      <h2>历史任务</h2>
+      <table>
+        <thead>
+          <tr><th>任务 ID</th><th>输入</th><th>意图</th><th>状态</th><th>耗时</th></tr>
+        </thead>
+        <tbody id="tasks"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const healthEl = document.getElementById("health");
+    const outputEl = document.getElementById("output");
+    const metaEl = document.getElementById("run-meta");
+    const queryEl = document.getElementById("query");
+    const tasksBody = document.getElementById("tasks");
+
+    async function checkHealth() {
+      try {
+        const res = await fetch("/health");
+        const data = await res.json();
+        healthEl.textContent = `服务正常 · v${data.version}`;
+        healthEl.classList.remove("offline");
+      } catch (err) {
+        healthEl.textContent = "服务不可用";
+        healthEl.classList.add("offline");
+      }
+    }
+
+    async function runAgent() {
+      metaEl.textContent = "正在运行，请稍候...";
+      outputEl.textContent = "Agent 执行中...";
+      try {
+        const res = await fetch("/api/agent/run", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({query: queryEl.value})
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          outputEl.textContent = data.detail || "运行失败";
+          metaEl.textContent = "运行失败";
+          return;
+        }
+        outputEl.textContent = data.report || "无输出";
+        metaEl.textContent = `任务 ID: ${data.task_id}\n意图: ${data.intent}\n耗时: ${data.duration_ms}ms\n状态: ${data.status}`;
+        loadTasks();
+      } catch (err) {
+        outputEl.textContent = String(err);
+        metaEl.textContent = "请求失败";
+      }
+    }
+
+    async function loadDemo() {
+      try {
+        const res = await fetch("/api/demo");
+        const data = await res.json();
+        outputEl.textContent = data.report;
+        metaEl.textContent = "当前展示的是内置演示日报，不消耗 API Token。";
+      } catch (err) {
+        outputEl.textContent = String(err);
+      }
+    }
+
+    async function loadTasks() {
+      try {
+        const res = await fetch("/api/tasks?limit=10");
+        const data = await res.json();
+        tasksBody.innerHTML = data.tasks.map(task => `
+          <tr>
+            <td><code>${task.task_id}</code></td>
+            <td>${task.user_input}</td>
+            <td>${task.intent}</td>
+            <td>${task.status}</td>
+            <td>${task.duration_ms}ms</td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        tasksBody.innerHTML = `<tr><td colspan="5">无法加载历史任务</td></tr>`;
+      }
+    }
+
+    document.getElementById("run-btn").addEventListener("click", runAgent);
+    document.getElementById("demo-btn").addEventListener("click", loadDemo);
+    checkHealth();
+    loadTasks();
+  </script>
+</body>
+</html>

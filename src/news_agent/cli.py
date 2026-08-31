@@ -6,7 +6,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from main.run_graph import run_news_agent
+from main.run_graph import run_news_agent  # noqa: E402
 
 
 def main():
