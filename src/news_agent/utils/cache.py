@@ -52,7 +52,7 @@ def set_category_summary_cache(category: str, summary: str):
     cache["category_summary"][category] = summary
     save_cache(cache)
 
-# 分类汇总
+# 分类汇总（只加这个）
 def get_category_summary_cache(cat: str):
     return cache["category_summary"].get(cat)
 def set_category_summary_cache(cat: str, content: str):

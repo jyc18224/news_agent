@@ -2,7 +2,7 @@ import yaml
 from pathlib import Path
 
 # 配置路径（和你原来的逻辑保持一致）
-CONFIG_PATH = Path(__file__).parent / "config" / "sources.yaml"
+CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "sources.yaml"
 
 
 def test_config_file_exists():

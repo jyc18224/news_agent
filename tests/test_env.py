@@ -3,19 +3,21 @@ import importlib
 import yaml
 from pathlib import Path
 
-CONFIG_PATH = Path("../config/sources.yaml")
+CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "sources.yaml"
 
 def test_python_version():
     python_version = sys.version.split()[0]
-    assert python_version.startswith("3.11"), "Python 版本必须是 3.11"
+    major, minor = (int(part) for part in python_version.split(".")[:2])
+    assert (major, minor) >= (3, 11), "Python 版本必须不低于 3.11"
 
 def test_required_packages_installed():
     required_packages = [
         "feedparser",
         "aiohttp",
         "langgraph",
-        "chromadb",
-        "sentence_transformers",
+        "openai",
+        "dotenv",
+        "requests",
         "yaml"
     ]
 

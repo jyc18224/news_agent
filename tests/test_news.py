@@ -1,43 +1,47 @@
-# 6.8 单元测试：测试清洗/去重/分类函数
-def test_clean_text():
-    """测试文本清洗函数"""
-    # 模拟你的文本清洗函数逻辑
-    try:
-        from main.utils import clean_text
-        # 测试用例
-        test_text = "  测试新闻！！包含多余符号...  "
-        result = clean_text(test_text)
-        assert result is not None
-        assert "  " not in result  # 验证去除了多余空格
-    except ImportError:
-        # 如果函数路径不同，不影响测试通过
-        assert True
+import sys
+from pathlib import Path
 
-def test_deduplicate_news():
-    """测试新闻去重函数"""
-    try:
-        from main.utils import deduplicate_news
-        # 模拟重复新闻数据
-        news_list = [{"title": "测试1"}, {"title": "测试1"}, {"title": "测试2"}]
-        result = deduplicate_news(news_list)
-        assert len(result) == 2  # 验证去重成功
-    except ImportError:
-        assert True
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-def test_classify_news():
-    """测试新闻分类函数"""
-    try:
-        from main.utils import classify_news
-        test_news = "特斯拉发布新款电动汽车"
-        result = classify_news(test_news)
-        assert result is not None
-    except ImportError:
-        assert True
+from main.demo_product import DEMO_ARTICLES, render_demo_report
+from news_agent.nodes.dedup import dedup_node
+from news_agent.utils.cleaner import clean_text
 
-def test_project_run():
-    """测试项目主程序可正常导入"""
-    try:
-        from main.run_graph import main
-        assert True
-    except Exception:
-        assert False
+
+def test_clean_text_removes_html_and_whitespace():
+    result = clean_text("<p>  hello   world </p>")
+    assert result == "hello world"
+
+
+def test_clean_text_handles_empty_input():
+    assert clean_text("") == ""
+    assert clean_text(None) == ""
+
+
+def test_dedup_node_removes_duplicate_titles():
+    state = {
+        "raw_articles": [
+            {"title": "重复新闻"},
+            {"title": "重复新闻"},
+            {"title": "独立新闻"},
+        ]
+    }
+    result = dedup_node(state)
+    titles = [article["title"] for article in result["deduped_articles"]]
+    assert titles == ["重复新闻", "独立新闻"]
+
+
+def test_demo_report_contains_product_output():
+    report = render_demo_report()
+    assert "# AI 新闻早报" in report
+    assert "今日抓取总量" in report
+    assert "编辑推荐" in report
+    assert "演示模式" in report
+
+
+def test_demo_articles_have_required_fields():
+    for article in DEMO_ARTICLES:
+        assert article["title"]
+        assert article["summary"]
+        assert article["category"]

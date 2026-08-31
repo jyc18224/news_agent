@@ -12,6 +12,8 @@ dependencies = [
     # Data fetching & parsing
     "feedparser==6.0.12",
     "aiohttp==3.13.5",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
     # Configuration & utilities
     "python-frontmatter==1.1.0",
     "pyyaml==6.0.3",

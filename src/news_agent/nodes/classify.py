@@ -21,7 +21,9 @@ client = OpenAI(
 # 预定义的分类列表
 CATEGORIES = ["科技", "财经", "娱乐", "体育", "教育", "健康", "其他"]
 
-
+# ----------------------
+# 5.24 批量分类（核心）
+# ----------------------
 def classify_batch(articles: List[Dict]) -> List[Dict]:
     """
     使用 LLM 对文章列表进行批量分类。
@@ -87,6 +89,9 @@ JSON 数组：
 
     return articles
 
+# ----------------------
+# 5.25 分类节点（给图用）
+# ----------------------
 def classify_node(state: dict) -> dict:
     """
     LangGraph 节点：对文章进行分类。
