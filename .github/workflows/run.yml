@@ -1,19 +1,18 @@
-name: Daily News Agent
+name: CI
 
 on:
-  schedule:
-    # ✅ 正确格式：分钟 小时 * * *（UTC 时间）
-    - cron: '00 10 * * *'
+  push:
+  pull_request:
   workflow_dispatch:
 
 jobs:
-  run-news-agent:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -21,16 +20,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -e .  # 从项目根目录安装
-          pip list  # 调试：查看已安装的包
+          pip install -e .
+          pip install pytest
 
-      - name: Run News Agent
+      - name: Run tests
         env:
-          # 修复环境变量（添加引号）
           PYTHONPATH: "${{ github.workspace }}/src:${{ github.workspace }}"
-          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
-          EMAIL_AUTH_CODE: ${{ secrets.EMAIL_AUTH_CODE }}
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
-          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
         run: |
-          python main/auto_run.py
+          pytest tests/ -q

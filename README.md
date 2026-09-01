@@ -4,6 +4,14 @@ NewsAgent 是一个面向个人和团队的 AI 新闻早报 Agent。它从多个
 
 ---
 
+## 在线访问
+
+- Web 控制台：https://news-agent-production-7e22.up.railway.app
+- API 文档：https://news-agent-production-7e22.up.railway.app/docs
+- 健康检查：https://news-agent-production-7e22.up.railway.app/health
+
+---
+
 ## 核心能力
 
 ### 1. 业务闭环
@@ -175,7 +183,7 @@ healthCheckPath: /health
 
 ### Railway
 
-项目包含 `railway.json` 和 `Dockerfile`，Railway 可直接使用 Docker 构建。
+项目包含 `railway.toml` 和 `Dockerfile`，Railway 可直接使用 Docker 构建。
 
 ---
 
@@ -188,22 +196,24 @@ healthCheckPath: /health
 - Web 控制台：`GET /` 返回 `200 OK`
 - 演示报告接口：`GET /api/demo` 返回完整 Markdown 日报
 - 主题检索接口：`POST /api/agent/run` 成功写入 SQLite 任务记录
-- Docker 配置：`Dockerfile`、`docker-compose.yml`、`render.yaml`、`railway.json` 已提供
+- Docker 配置：`Dockerfile`、`docker-compose.yml`、`render.yaml`、`railway.toml` 已提供
 - Docker Compose 配置校验：`docker compose config --quiet` 通过
 - 本地访问验证：`http://localhost:8000/`、`/docs`、`/health` 均返回 `200 OK`
 
 ### 公网部署状态
 
-当前公网部署尚未完成。原因是本机未配置 Render 或 Railway 的账号凭据，无法代替用户完成账号注册、实名认证和云资源创建。
+项目已通过 Railway 完成公网部署，使用 Dockerfile 构建并自动接入 GitHub 仓库。
 
-Docker 镜像构建在本机尝试时因 Docker Hub 基础镜像拉取超时未完成，Dockerfile 本身已通过 Docker 构建器解析，Compose 配置已通过本地校验。
+- 公网地址：https://news-agent-production-7e22.up.railway.app
+- 部署时间：2026-09-01
+- 部署方式：Railway + Dockerfile
+- 配置来源：`railway.toml`
 
-部署文件已就绪。完成账号配置后，可按以下流程上线：
+部署完成后已验证：
 
-1. 将本仓库推送到 GitHub
-2. 在 Render 中选择 Blueprint 或 Docker 服务，关联仓库
-3. 配置 `DASHSCOPE_API_KEY`、`EMAIL_SENDER`、`EMAIL_AUTH_CODE`、`EMAIL_TO`
-4. 获取公网 URL 后补充到本 README 的部署证明板块
+- `GET /` 返回 Web 控制台
+- `GET /docs` 返回 API 文档
+- `GET /health` 返回 `200 OK`
 
 ---
 
@@ -231,6 +241,14 @@ uv run uvicorn news_agent.api:app --host 0.0.0.0 --port 8000
 
 如需公网访问，请将项目部署到 Render 或 Railway，并使用平台分配的 HTTPS 地址。
 
+当前 Railway 公网地址：
+
+- Web 控制台：https://news-agent-production-7e22.up.railway.app
+- API 文档：https://news-agent-production-7e22.up.railway.app/docs
+- 健康检查：https://news-agent-production-7e22.up.railway.app/health
+
+公网地址由 Railway 托管，任何能访问互联网的设备均可打开；如果停止或删除 Railway 服务，该地址会同步失效。
+
 ---
 
 ## 项目结构
@@ -251,7 +269,7 @@ examples/demo_report.md          # 示例日报
 Dockerfile                       # 容器镜像
 docker-compose.yml               # 本地容器编排
 render.yaml                      # Render 部署配置
-railway.json                     # Railway 部署配置
+railway.toml                     # Railway 部署配置
 ```
 
 ---
