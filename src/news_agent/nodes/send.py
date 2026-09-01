@@ -49,6 +49,12 @@ def send_email_node(state: dict) -> dict:
     email_config = state.get("config", {}).get("email", {})
     report_content = state.get("report", "")
 
+    if not email_config.get("enabled", False):
+        logger.info("邮件通知功能已禁用，跳过发送步骤。")
+        state["email_sent"] = False
+        state["email_error"] = None
+        return state
+
     if email_config.get("confirm_before_send", False):
         if not sys.stdin.isatty():
             logger.warning("非交互环境无法执行人工确认，跳过邮件发送。")

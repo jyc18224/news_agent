@@ -191,7 +191,7 @@ healthCheckPath: /health
 
 ### 本地验证
 
-- Python 测试：`23 passed`
+- Python 测试：`24 passed`
 - FastAPI 健康检查：`GET /health` 返回 `200 OK`
 - Web 控制台：`GET /` 返回 `200 OK`
 - 演示报告接口：`GET /api/demo` 返回完整 Markdown 日报
