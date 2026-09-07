@@ -1,88 +1,67 @@
 # NewsAgent
 
-NewsAgent 是一个面向个人和团队的 AI 新闻早报 Agent。它从多个 RSS 新闻源自动抓取内容，完成去重、清洗、分类、摘要、综述、Markdown 日报生成与邮件推送，并通过标准化 HTTP API 和 Web 控制台对外提供服务。
-
----
-
-## 在线访问
-
-- Web 控制台：https://news-agent-production-7e22.up.railway.app
-- API 文档：https://news-agent-production-7e22.up.railway.app/docs
-- 健康检查：https://news-agent-production-7e22.up.railway.app/health
-
----
+NewsAgent 是一个面向个人和团队的 AI 新闻早报 Agent。它从多个 RSS 新闻源抓取内容，自动完成去重、清洗、分类、摘要和分类综述，生成 Markdown 日报，并可通过邮件推送；同时提供 HTTP API、Web 控制台和命令行入口，方便接入已有工作流。
 
 ## 核心能力
 
-### 1. 业务闭环
+- **完整新闻流水线**：异步并发抓取 RSS -> 标题去重 -> 文本清洗 -> AI 分类 -> 单篇摘要 -> 分类综述 -> Markdown 日报 -> 可选邮件推送。
+- **意图识别与分流**：HTTP 入口自动识别“看今日简报”或“查某主题”等请求，分别进入日报生成与主题检索流程。
+- **生产级工作流**：基于 LangGraph `StateGraph` 管理状态、节点、条件路由与 checkpoint；单个 RSS 源失败不会中断整条链路。
+- **成本与上下文控制**：分类、摘要和分类综述均带本地缓存，每个 LLM 节点只读取当前步骤所需的最小状态。
+- **可观测与持久化**：内置日志、环节耗时统计、可选 Langfuse trace，以及 SQLite 任务历史。
+- **安全交付**：API 默认不发送邮件；CLI 支持 `--no-send` 干跑和发送前 Y/N 人工确认。
 
-NewsAgent 覆盖完整业务链路：
+技术栈：Python 3.11、FastAPI、LangGraph、aiohttp + feedparser、DashScope 兼容接口（qwen-turbo）、SQLite、Docker。
 
-```text
-RSS 新闻源 -> 异步抓取 -> 标题去重 -> 文本清洗 -> 意图识别
-           -> AI 分类 -> AI 摘要 -> 分类综述 -> 日报生成 -> 邮件推送
-```
+## 在线体验
 
-系统输出可直接阅读、归档和二次分发的 Markdown 日报，而不是只停留在模型调用阶段。
-
-### 2. 工程可靠性
-
-- 使用 LangGraph `StateGraph` 管理节点、状态、条件路由和 checkpoint
-- 每个数据源独立抓取，单个 RSS 失败不会中断整条链路
-- 分类、摘要、分类综述均带本地缓存，避免重复消耗 Token
-- 日志记录运行过程与错误信息
-- 提供 Dockerfile、健康检查、自动化测试和 SQLite 任务历史
-
-### 3. 任务规划能力
-
-- 入口处增加意图识别，自动分流：
-  - `看今日简报` 进入日报生成流程
-  - `查特定主题` 进入主题检索流程
-- 使用条件路由处理文章数量超过阈值的情况
-- 工作流状态通过统一 `AgentState` 传递，为后续扩展任务规划节点保留清晰边界
-
-### 4. 上下文管理
-
-- 将配置、原始文章、去重结果、清洗结果、分类结果、摘要、报告分别放入独立状态字段
-- 每个 LLM 节点只使用当前任务所需的最小子集，避免无关历史信息进入 prompt
-- 缓存以标题为键，降低重复内容对上下文的污染和 Token 成本
-
-### 5. 监控与评测
-
-- 内置日志体系，记录抓取、清洗、分类、摘要、报告、邮件各环节耗时
-- 可选接入 Langfuse，为每次 Agent 运行生成 trace
-- SQLite 保存任务 ID、用户输入、模型输出、执行耗时、任务状态与错误信息
-- 提供自动化测试，覆盖配置解析、意图识别、持久化、清洗、去重和演示输出
-
-### 6. 人类干预机制
-
-- 邮件发送前支持 Y/N 人工确认
-- 支持 `--no-send` 干跑模式，不触发真实邮件
-- API 默认不发送邮件，避免 Web 请求意外触发外发行为
-
----
+| 入口 | 地址 |
+| :--- | :--- |
+| Web 控制台 | https://news-agent-production-7e22.up.railway.app |
+| API 文档 | https://news-agent-production-7e22.up.railway.app/docs |
+| 健康检查 | https://news-agent-production-7e22.up.railway.app/health |
 
 ## 快速开始
 
+### 安装
+
+需要 Python 3.11+，建议使用 [uv](https://docs.astral.sh/uv/) 管理依赖：
+
+```bash
+git clone https://github.com/jyc18224/news_agent.git
+cd news_agent
+uv sync
+```
+
 ### 无密钥演示
 
-不需要 API Key、邮箱或 RSS 网络：
+不配置 API Key、邮箱或 RSS 网络即可生成一份产品示例日报：
 
 ```bash
-python main/demo_product.py
+uv run python main/demo_product.py
 ```
 
-生成示例日报：
+运行后会生成 `examples/demo_report.md`。
 
-```text
-examples/demo_report.md
-```
-
-### 本地启动 Web 服务
+### 配置环境变量
 
 ```bash
-uv sync
-uv run uvicorn news_agent.api:app --host 0.0.0.0 --port 8000
+cp .env.example .env
+```
+
+按需填写 `.env`：
+
+- `DASHSCOPE_API_KEY`：运行真实日报流程必需。
+- `EMAIL_SENDER`、`EMAIL_AUTH_CODE`、`EMAIL_TO`：需要邮件推送时配置。
+- `LANGFUSE_ENABLED` 与 `LANGFUSE_*`：可选，用于开启 Langfuse 追踪。
+- `NEWS_AGENT_DB_PATH`：可选，SQLite 数据库文件路径，默认 `data/news_agent.db`。
+
+新闻源在 `config/sources.yaml` 中配置，系统默认接入 OpenAI Blog、Hacker News 和 TechCrunch AI。
+
+### 运行 Web 服务
+
+```bash
+uv run uvicorn news_agent.api:app --port 8000 --env-file .env
 ```
 
 访问：
@@ -91,38 +70,25 @@ uv run uvicorn news_agent.api:app --host 0.0.0.0 --port 8000
 - API 文档：http://localhost:8000/docs
 - 健康检查：http://localhost:8000/health
 
-仅在本机启动时，服务只接受本机访问；若使用 `--host 0.0.0.0`，局域网内其他设备可通过本机局域网 IP 访问。
-
-### 配置环境变量
-
-复制 `.env.example` 为 `.env`：
-
-```text
-DASHSCOPE_API_KEY=
-EMAIL_SENDER=
-EMAIL_AUTH_CODE=
-EMAIL_TO=
-LANGFUSE_ENABLED=false
-NEWS_AGENT_DB_PATH=data/news_agent.db
-```
+如需让局域网其他设备访问，请加上 `--host 0.0.0.0`，并确认防火墙已放行 `8000` 端口。
 
 ### 命令行运行
 
 ```bash
 # 完整日报流程
-python main/run_graph.py
-
-# 邮件发送前要求 Y/N 确认
-python main/run_graph.py --confirm-email
+uv run python main/run_graph.py
 
 # 禁止发送邮件
-python main/run_graph.py --no-send
+uv run python main/run_graph.py --no-send
 
-# 定时运行
-python main/auto_run.py
+# 邮件发送前要求 Y/N 确认
+uv run python main/run_graph.py --confirm-email
+
+# 自定义报告输出位置
+uv run python main/run_graph.py --output report.md
 ```
 
----
+`main/auto_run.py` 可作为定时任务的包装入口，配合 cron、systemd timer 或云调度器使用。
 
 ## HTTP API
 
@@ -135,7 +101,7 @@ python main/auto_run.py
 | GET | `/api/tasks` | 查询历史任务 |
 | GET | `/api/tasks/{task_id}` | 查询任务详情 |
 
-运行 Agent 示例：
+请求体支持 `query`、`send_email` 和 `confirm_email`，其中 `send_email` 默认 `false`。
 
 ```bash
 curl -X POST http://localhost:8000/api/agent/run \
@@ -151,11 +117,9 @@ curl -X POST http://localhost:8000/api/agent/run \
   -d '{"query":"查一下 AI Agent 主题","send_email":false}'
 ```
 
----
+## 部署
 
-## 容器化部署
-
-### 本地 Docker 构建
+### Docker
 
 ```bash
 docker build -t news-agent .
@@ -164,115 +128,40 @@ docker run --rm -p 8000:8000 \
   news-agent
 ```
 
-### Docker Compose
+需要邮件、Langfuse 等更多配置时，使用 Docker Compose：
 
 ```bash
 docker compose up --build
 ```
 
-### Render
+### Render 与 Railway
 
-项目包含 `render.yaml`，Render 可自动识别 Docker 部署配置：
-
-```text
-type: web
-runtime: docker
-dockerfilePath: ./Dockerfile
-healthCheckPath: /health
-```
-
-### Railway
-
-项目包含 `railway.toml` 和 `Dockerfile`，Railway 可直接使用 Docker 构建。
-
----
-
-## 部署证明
-
-### 本地验证
-
-- Python 测试：`24 passed`
-- FastAPI 健康检查：`GET /health` 返回 `200 OK`
-- Web 控制台：`GET /` 返回 `200 OK`
-- 演示报告接口：`GET /api/demo` 返回完整 Markdown 日报
-- 主题检索接口：`POST /api/agent/run` 成功写入 SQLite 任务记录
-- Docker 配置：`Dockerfile`、`docker-compose.yml`、`render.yaml`、`railway.toml` 已提供
-- Docker Compose 配置校验：`docker compose config --quiet` 通过
-- 本地访问验证：`http://localhost:8000/`、`/docs`、`/health` 均返回 `200 OK`
-
-### 公网部署状态
-
-项目已通过 Railway 完成公网部署，使用 Dockerfile 构建并自动接入 GitHub 仓库。
-
-- 公网地址：https://news-agent-production-7e22.up.railway.app
-- 部署时间：2026-09-01
-- 部署方式：Railway + Dockerfile
-- 配置来源：`railway.toml`
-
-部署完成后已验证：
-
-- `GET /` 返回 Web 控制台
-- `GET /docs` 返回 API 文档
-- `GET /health` 返回 `200 OK`
-
----
-
-## 访问范围与权限
-
-默认部署在本机时，服务仅允许本机访问：
-
-- Web 控制台：http://localhost:8000
-- API 文档：http://localhost:8000/docs
-- 健康检查：http://localhost:8000/health
-
-其他设备无法直接访问以上地址。
-
-如需让局域网内其他设备访问：
-
-```bash
-uv run uvicorn news_agent.api:app --host 0.0.0.0 --port 8000
-```
-
-然后：
-
-1. 确认本机防火墙已放行 TCP 8000 端口
-2. 使用本机局域网 IP 访问，例如 `http://192.168.1.20:8000`
-3. 如仍无法访问，检查路由器或虚拟网络是否阻止设备间通信
-
-如需公网访问，请将项目部署到 Render 或 Railway，并使用平台分配的 HTTPS 地址。
-
-当前 Railway 公网地址：
-
-- Web 控制台：https://news-agent-production-7e22.up.railway.app
-- API 文档：https://news-agent-production-7e22.up.railway.app/docs
-- 健康检查：https://news-agent-production-7e22.up.railway.app/health
-
-公网地址由 Railway 托管，任何能访问互联网的设备均可打开；如果停止或删除 Railway 服务，该地址会同步失效。
-
----
+项目根目录包含 `render.yaml` 和 `railway.toml`。选择 Dockerfile 构建，按 `.env.example` 配置环境变量即可；服务健康检查路径为 `/health`。
 
 ## 项目结构
 
 ```text
-config/sources.yaml              # 新闻源、邮件与任务配置
-main/run_graph.py                # 命令行完整工作流
-main/demo_product.py             # 示例报告生成入口
-src/news_agent/api.py            # FastAPI 服务
-src/news_agent/web/index.html    # Web 控制台
-src/news_agent/service.py        # Agent 业务服务层
-src/news_agent/intent.py         # 意图识别分流
-src/news_agent/storage.py        # SQLite 持久化
-src/news_agent/observability.py  # Langfuse 追踪
-src/news_agent/graph.py          # LangGraph 工作流
-tests/                           # 自动化测试
-examples/demo_report.md          # 示例日报
-Dockerfile                       # 容器镜像
-docker-compose.yml               # 本地容器编排
-render.yaml                      # Render 部署配置
-railway.toml                     # Railway 部署配置
+main/
+  run_graph.py              # 命令行完整工作流
+  demo_product.py           # 无密钥演示日报
+  auto_run.py               # 定时任务包装入口
+src/news_agent/
+  api.py                    # FastAPI 服务与 Web 入口
+  service.py                # Agent 业务服务层
+  graph.py                  # LangGraph 工作流
+  intent.py                 # 意图识别分流
+  nodes/                    # 抓取、去重、分类、摘要、发送等节点
+  storage.py                # SQLite 持久化
+  observability.py          # Langfuse 追踪
+  web/index.html            # Web 控制台
+config/sources.yaml         # RSS 新闻源与任务配置
+examples/demo_report.md     # 示例日报
+tests/                      # 自动化测试
+Dockerfile                  # 容器镜像
+docker-compose.yml          # 本地容器编排
+render.yaml                 # Render 部署配置
+railway.toml                # Railway 部署配置
 ```
-
----
 
 ## 测试
 
@@ -280,13 +169,4 @@ railway.toml                     # Railway 部署配置
 uv run pytest tests/
 ```
 
-当前测试覆盖：
-
-- 配置文件解析
-- 运行环境依赖
-- 文本清洗
-- 标题去重
-- 意图识别
-- SQLite 持久化
-- 产品演示输出
-- 邮件发送
+当前测试覆盖配置解析、运行环境、文本清洗、标题去重、意图识别、SQLite 持久化、产品演示输出、邮件发送和 HTTP API。
